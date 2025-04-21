@@ -273,29 +273,29 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  margin: 10px 0;
+  gap: 10px;
+  margin: 15px 0;
 }
 
-.sum-numerator-container label {
+.adjusted-fractions {
   font-size: 1.1em;
   color: #495057;
+  margin-right: 5px;
 }
 
 .sum-fraction-input {
   display: inline-flex;
   align-items: center;
-  white-space: nowrap;
+  gap: 5px;
 }
 
 .sum-fraction-input input {
-  width: 50px;
+  width: 55px;
   height: 35px;
   text-align: center;
   font-size: 1.1em;
   border: 2px solid #0088FE;
   border-radius: 5px;
-  margin: 0;
 }
 
 .sum-fraction-input span {
@@ -621,4 +621,15 @@
 
 .next-button:hover {
   background-color: #218838;
+}
+
+/* Remove number input spinners for all browsers */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
 } 

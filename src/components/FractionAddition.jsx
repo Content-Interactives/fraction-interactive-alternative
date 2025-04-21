@@ -38,11 +38,19 @@ const FractionAddition = () => {
   const handleInputChange = (fractionKey, part, value) => {
     if (fractionsLocked) return;
     
+    // Convert to number and validate
+    let numValue = parseInt(value) || '';
+    
+    // Ensure value is between 1 and 10
+    if (numValue !== '') {
+      numValue = Math.max(1, Math.min(10, numValue));
+    }
+    
     setFractions(prev => ({
       ...prev,
       [fractionKey]: {
         ...prev[fractionKey],
-        [part]: value
+        [part]: numValue
       }
     }));
   };
@@ -123,10 +131,12 @@ const FractionAddition = () => {
     const num2 = parseInt(f2.numerator);
     const den2 = parseInt(f2.denominator);
     
-    // Find common denominator
-    const commonDen = den1 * den2;
-    const newNum1 = num1 * den2;
-    const newNum2 = num2 * den1;
+    // Find least common multiple for denominator
+    const commonDen = findLCM(den1, den2);
+    const factor1 = commonDen / den1;
+    const factor2 = commonDen / den2;
+    const newNum1 = num1 * factor1;
+    const newNum2 = num2 * factor2;
     const sumNum = newNum1 + newNum2;
     
     // Simplify fraction
@@ -171,22 +181,41 @@ const FractionAddition = () => {
 
     switch (currentStep) {
       case 0: // Common denominator
-        isCorrect = parseInt(studentAnswers.commonDenominator) === den1 * den2;
-        message = isCorrect ? 'Correct! The common denominator is the product of both denominators.' 
-                           : 'Try again. Multiply the two denominators together.';
+        const expectedCommonDen = findLCM(den1, den2);
+        isCorrect = parseInt(studentAnswers.commonDenominator) === expectedCommonDen;
+        message = isCorrect ? 'Correct! You found the least common multiple of the denominators.' 
+                           : 'Try again. Find the least common multiple of the denominators.';
         break;
       case 1: // Adjusted numerators
-        const correctNum1 = num1 * den2;
-        const correctNum2 = num2 * den1;
-        isCorrect = parseInt(studentAnswers.adjustedNumerator1) === correctNum1 && 
-                   parseInt(studentAnswers.adjustedNumerator2) === correctNum2;
-        message = isCorrect ? 'Correct! You multiplied each numerator by the other denominator.' 
-                           : 'Try again. Multiply each numerator by the other denominator.';
+        const commonDen = findLCM(den1, den2);
+        const factor1 = commonDen / den1;
+        const factor2 = commonDen / den2;
+        const correctNum1 = num1 * factor1;
+        const correctNum2 = num2 * factor2;
+        const firstCorrect = parseInt(studentAnswers.adjustedNumerator1) === correctNum1;
+        const secondCorrect = parseInt(studentAnswers.adjustedNumerator2) === correctNum2;
+        isCorrect = firstCorrect && secondCorrect;
+        
+        if (!isCorrect) {
+          if (!firstCorrect && !secondCorrect) {
+            message = `Try again. For the first fraction, multiply ${num1} by ${factor1}, and for the second fraction, multiply ${num2} by ${factor2}.`;
+          } else if (!firstCorrect) {
+            message = `Try again. For the first fraction, multiply ${num1} by ${factor1}.`;
+          } else {
+            message = `Try again. For the second fraction, multiply ${num2} by ${factor2}.`;
+          }
+        } else {
+          message = 'Correct! You adjusted each numerator correctly.';
+        }
         break;
       case 2: // Sum numerators
-        isCorrect = parseInt(studentAnswers.sumNumerator) === (num1 * den2 + num2 * den1);
+        const sumCommonDen = findLCM(den1, den2);
+        const sumFactor1 = sumCommonDen / den1;
+        const sumFactor2 = sumCommonDen / den2;
+        const expectedSum = (num1 * sumFactor1) + (num2 * sumFactor2);
+        isCorrect = parseInt(studentAnswers.sumNumerator) === expectedSum;
         message = isCorrect ? 'Correct! You added the adjusted numerators.' 
-                           : 'Try again. Add the two adjusted numerators together.';
+                          : 'Try again. Add the two adjusted numerators together.';
         break;
       case 3: // Simplified fraction
         const gcd = findGCD(result.steps.sumNumerator, result.steps.commonDenominator);
@@ -210,6 +239,10 @@ const FractionAddition = () => {
 
   const findGCD = (a, b) => {
     return b === 0 ? a : findGCD(b, a % b);
+  };
+
+  const findLCM = (a, b) => {
+    return (a * b) / findGCD(a, b);
   };
 
   const generatePieData = (numerator, denominator) => {
@@ -260,6 +293,7 @@ const FractionAddition = () => {
     
     switch (currentStep) {
       case 0:
+        const expectedCommonDen = findLCM(parseInt(f1.denominator), parseInt(f2.denominator));
         return (
           <div className="step-content">
             <p>Find the common denominator for {f1.numerator}/{f1.denominator} and {f2.numerator}/{f2.denominator}</p>
@@ -300,7 +334,7 @@ const FractionAddition = () => {
                   value={studentAnswers.adjustedNumerator1}
                   onChange={(e) => handleStudentAnswerChange('adjustedNumerator1', e.target.value)}
                 />
-                <div className="denominator">/20</div>
+                <div className="denominator">/{studentAnswers.commonDenominator}</div>
               </div>
               <span>+</span>
               <div className="input-with-label">
@@ -310,7 +344,7 @@ const FractionAddition = () => {
                   value={studentAnswers.adjustedNumerator2}
                   onChange={(e) => handleStudentAnswerChange('adjustedNumerator2', e.target.value)}
                 />
-                <div className="denominator">/20</div>
+                <div className="denominator">/{studentAnswers.commonDenominator}</div>
               </div>
             </div>
             {!feedback.includes('Correct!') && (
@@ -335,13 +369,16 @@ const FractionAddition = () => {
           <div className="step-content">
             <p>Add the adjusted numerators</p>
             <div className="sum-numerator-container">
-              <label>Sum of numerators:</label>
+              <div className="adjusted-fractions">
+                {studentAnswers.adjustedNumerator1}/{result.steps.commonDenominator} + {studentAnswers.adjustedNumerator2}/{result.steps.commonDenominator} =
+              </div>
               <div className="sum-fraction-input">
                 <input
                   type="number"
                   value={studentAnswers.sumNumerator}
                   onChange={(e) => handleStudentAnswerChange('sumNumerator', e.target.value)}
-                /><span>/{result.steps.commonDenominator}</span>
+                />
+                <span>/{result.steps.commonDenominator}</span>
               </div>
             </div>
             {!feedback.includes('Correct!') && (
@@ -364,7 +401,7 @@ const FractionAddition = () => {
       case 3:
         return (
           <div className="step-content">
-            <p>Simplify the fraction {result.steps.sumNumerator}/{result.steps.commonDenominator}</p>
+            <p>Simplify the fraction {studentAnswers.sumNumerator}/{result.steps.commonDenominator}</p>
             <div className="simplified-fraction">
               <div className="input-with-label">
                 <span>Simplified numerator:</span>
@@ -392,27 +429,11 @@ const FractionAddition = () => {
             {feedback && !isComplete && (
               <div className="feedback-container">
                 <p className={`feedback ${feedback.includes('Correct!') ? 'correct' : 'incorrect'}`}>{feedback}</p>
-              </div>
-            )}
-            {isComplete && (
-              <div className="final-result" key={animationKey}>
-                <p className="feedback correct">Correct!</p>
-                <h3>Final Result: {result.numerator}/{result.denominator}</h3>
-                <div className="student-steps">
-                  <h4>Your Steps:</h4>
-                  <div className="step-animation" style={{ animationDelay: '0s' }}>
-                    <p>1. Common Denominator: {studentAnswers.commonDenominator}</p>
-                  </div>
-                  <div className="step-animation" style={{ animationDelay: '0.2s' }}>
-                    <p>2. Adjusted Fractions: {studentAnswers.adjustedNumerator1}/{result.steps.commonDenominator} + {studentAnswers.adjustedNumerator2}/{result.steps.commonDenominator}</p>
-                  </div>
-                  <div className="step-animation" style={{ animationDelay: '0.4s' }}>
-                    <p>3. Sum: {studentAnswers.sumNumerator}/{result.steps.commonDenominator}</p>
-                  </div>
-                  <div className="step-animation" style={{ animationDelay: '0.6s' }}>
-                    <p>4. Simplified: {studentAnswers.simplifiedNumerator}/{studentAnswers.simplifiedDenominator}</p>
-                  </div>
-                </div>
+                {feedback.includes('Correct!') && (
+                  <button className="next-button" onClick={handleNextStep}>
+                    Next Step →
+                  </button>
+                )}
               </div>
             )}
           </div>
@@ -436,6 +457,8 @@ const FractionAddition = () => {
                   <span>Numerator:</span>
                   <input
                     type="number"
+                    min="1"
+                    max="10"
                     value={fractions.fraction1.numerator}
                     onChange={(e) => handleInputChange('fraction1', 'numerator', e.target.value)}
                     disabled={fractionsLocked}
@@ -446,6 +469,8 @@ const FractionAddition = () => {
                   <span>Denominator:</span>
                   <input
                     type="number"
+                    min="1"
+                    max="10"
                     value={fractions.fraction1.denominator}
                     onChange={(e) => handleInputChange('fraction1', 'denominator', e.target.value)}
                     disabled={fractionsLocked}
@@ -461,6 +486,8 @@ const FractionAddition = () => {
                   <span>Numerator:</span>
                   <input
                     type="number"
+                    min="1"
+                    max="10"
                     value={fractions.fraction2.numerator}
                     onChange={(e) => handleInputChange('fraction2', 'numerator', e.target.value)}
                     disabled={fractionsLocked}
@@ -471,6 +498,8 @@ const FractionAddition = () => {
                   <span>Denominator:</span>
                   <input
                     type="number"
+                    min="1"
+                    max="10"
                     value={fractions.fraction2.denominator}
                     onChange={(e) => handleInputChange('fraction2', 'denominator', e.target.value)}
                     disabled={fractionsLocked}

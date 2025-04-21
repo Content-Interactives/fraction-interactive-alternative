@@ -632,4 +632,43 @@ input[type="number"]::-webkit-outer-spin-button {
 
 input[type="number"] {
   -moz-appearance: textfield;
+}
+
+.input-with-label input.correct {
+  border-color: #28a745;
+  background-color: #f8fff9;
+  color: #28a745;
+  font-weight: 500;
+}
+
+.input-with-label input.correct:disabled {
+  background-color: #f8fff9;
+  opacity: 1;
+  cursor: not-allowed;
+}
+
+.sum-fraction-input input.correct {
+  border-color: #28a745;
+  background-color: #f8fff9;
+  color: #28a745;
+  font-weight: 500;
+}
+
+.sum-fraction-input input.correct:disabled {
+  background-color: #f8fff9;
+  opacity: 1;
+  cursor: not-allowed;
+}
+
+.simplified-fraction input.correct {
+  border-color: #28a745;
+  background-color: #f8fff9;
+  color: #28a745;
+  font-weight: 500;
+}
+
+.simplified-fraction input.correct:disabled {
+  background-color: #f8fff9;
+  opacity: 1;
+  cursor: not-allowed;
 } 

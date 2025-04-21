@@ -25,6 +25,14 @@ const FractionAddition = () => {
   const [animationKey, setAnimationKey] = useState(0);
   const [stepAnimation, setStepAnimation] = useState('');
   const [showNextButton, setShowNextButton] = useState(false);
+  const [correctAnswers, setCorrectAnswers] = useState({
+    commonDenominator: false,
+    adjustedNumerator1: false,
+    adjustedNumerator2: false,
+    sumNumerator: false,
+    simplifiedNumerator: false,
+    simplifiedDenominator: false
+  });
 
   useEffect(() => {
     // Trigger step animation when currentStep changes
@@ -56,6 +64,7 @@ const FractionAddition = () => {
   };
 
   const handleStudentAnswerChange = (field, value) => {
+    if (correctAnswers[field]) return; // Prevent changes to correct answers
     setStudentAnswers(prev => ({
       ...prev,
       [field]: value
@@ -183,9 +192,14 @@ const FractionAddition = () => {
       case 0: // Common denominator
         const expectedCommonDen = findLCM(den1, den2);
         isCorrect = parseInt(studentAnswers.commonDenominator) === expectedCommonDen;
-        message = isCorrect ? 'Correct! You found the least common multiple of the denominators.' 
-                           : 'Try again. Find the least common multiple of the denominators.';
+        if (isCorrect) {
+          setCorrectAnswers(prev => ({ ...prev, commonDenominator: true }));
+          message = 'Correct! You found the least common multiple of the denominators.';
+        } else {
+          message = 'Try again. Find the least common multiple of the denominators.';
+        }
         break;
+
       case 1: // Adjusted numerators
         const commonDen = findLCM(den1, den2);
         const factor1 = commonDen / den1;
@@ -196,7 +210,14 @@ const FractionAddition = () => {
         const secondCorrect = parseInt(studentAnswers.adjustedNumerator2) === correctNum2;
         isCorrect = firstCorrect && secondCorrect;
         
-        if (!isCorrect) {
+        if (isCorrect) {
+          setCorrectAnswers(prev => ({
+            ...prev,
+            adjustedNumerator1: true,
+            adjustedNumerator2: true
+          }));
+          message = 'Correct! You adjusted each numerator correctly.';
+        } else {
           if (!firstCorrect && !secondCorrect) {
             message = `Try again. For the first fraction, multiply ${num1} by ${factor1}, and for the second fraction, multiply ${num2} by ${factor2}.`;
           } else if (!firstCorrect) {
@@ -204,27 +225,37 @@ const FractionAddition = () => {
           } else {
             message = `Try again. For the second fraction, multiply ${num2} by ${factor2}.`;
           }
-        } else {
-          message = 'Correct! You adjusted each numerator correctly.';
         }
         break;
+
       case 2: // Sum numerators
         const sumCommonDen = findLCM(den1, den2);
         const sumFactor1 = sumCommonDen / den1;
         const sumFactor2 = sumCommonDen / den2;
         const expectedSum = (num1 * sumFactor1) + (num2 * sumFactor2);
         isCorrect = parseInt(studentAnswers.sumNumerator) === expectedSum;
-        message = isCorrect ? 'Correct! You added the adjusted numerators.' 
-                          : 'Try again. Add the two adjusted numerators together.';
+        if (isCorrect) {
+          setCorrectAnswers(prev => ({ ...prev, sumNumerator: true }));
+          message = 'Correct! You added the adjusted numerators.';
+        } else {
+          message = 'Try again. Add the two adjusted numerators together.';
+        }
         break;
+
       case 3: // Simplified fraction
         const gcd = findGCD(result.steps.sumNumerator, result.steps.commonDenominator);
-        isCorrect = parseInt(studentAnswers.simplifiedNumerator) === result.steps.sumNumerator / gcd &&
-                   parseInt(studentAnswers.simplifiedDenominator) === result.steps.commonDenominator / gcd;
+        const simplifiedCorrect = 
+          parseInt(studentAnswers.simplifiedNumerator) === result.steps.sumNumerator / gcd &&
+          parseInt(studentAnswers.simplifiedDenominator) === result.steps.commonDenominator / gcd;
+        isCorrect = simplifiedCorrect;
         if (isCorrect) {
+          setCorrectAnswers(prev => ({
+            ...prev,
+            simplifiedNumerator: true,
+            simplifiedDenominator: true
+          }));
           message = 'Correct! You simplified the fraction correctly.';
           setIsComplete(true);
-          setAnimationKey(prev => prev + 1);
         } else {
           message = 'Try again. Find the greatest common divisor and divide both numbers by it.';
         }
@@ -293,7 +324,6 @@ const FractionAddition = () => {
     
     switch (currentStep) {
       case 0:
-        const expectedCommonDen = findLCM(parseInt(f1.denominator), parseInt(f2.denominator));
         return (
           <div className="step-content">
             <p>Find the common denominator for {f1.numerator}/{f1.denominator} and {f2.numerator}/{f2.denominator}</p>
@@ -303,6 +333,8 @@ const FractionAddition = () => {
                 type="number"
                 value={studentAnswers.commonDenominator}
                 onChange={(e) => handleStudentAnswerChange('commonDenominator', e.target.value)}
+                disabled={correctAnswers.commonDenominator}
+                className={correctAnswers.commonDenominator ? 'correct' : ''}
               />
             </div>
             {!feedback.includes('Correct!') && (
@@ -322,6 +354,7 @@ const FractionAddition = () => {
             )}
           </div>
         );
+
       case 1:
         return (
           <div className="step-content">
@@ -333,6 +366,8 @@ const FractionAddition = () => {
                   type="number"
                   value={studentAnswers.adjustedNumerator1}
                   onChange={(e) => handleStudentAnswerChange('adjustedNumerator1', e.target.value)}
+                  disabled={correctAnswers.adjustedNumerator1}
+                  className={correctAnswers.adjustedNumerator1 ? 'correct' : ''}
                 />
                 <div className="denominator">/{studentAnswers.commonDenominator}</div>
               </div>
@@ -343,6 +378,8 @@ const FractionAddition = () => {
                   type="number"
                   value={studentAnswers.adjustedNumerator2}
                   onChange={(e) => handleStudentAnswerChange('adjustedNumerator2', e.target.value)}
+                  disabled={correctAnswers.adjustedNumerator2}
+                  className={correctAnswers.adjustedNumerator2 ? 'correct' : ''}
                 />
                 <div className="denominator">/{studentAnswers.commonDenominator}</div>
               </div>
@@ -364,21 +401,24 @@ const FractionAddition = () => {
             )}
           </div>
         );
+
       case 2:
         return (
           <div className="step-content">
             <p>Add the adjusted numerators</p>
             <div className="sum-numerator-container">
               <div className="adjusted-fractions">
-                {studentAnswers.adjustedNumerator1}/{result.steps.commonDenominator} + {studentAnswers.adjustedNumerator2}/{result.steps.commonDenominator} =
+                {studentAnswers.adjustedNumerator1}/{studentAnswers.commonDenominator} + {studentAnswers.adjustedNumerator2}/{studentAnswers.commonDenominator} =
               </div>
               <div className="sum-fraction-input">
                 <input
                   type="number"
                   value={studentAnswers.sumNumerator}
                   onChange={(e) => handleStudentAnswerChange('sumNumerator', e.target.value)}
+                  disabled={correctAnswers.sumNumerator}
+                  className={correctAnswers.sumNumerator ? 'correct' : ''}
                 />
-                <span>/{result.steps.commonDenominator}</span>
+                <span>/{studentAnswers.commonDenominator}</span>
               </div>
             </div>
             {!feedback.includes('Correct!') && (
@@ -398,10 +438,11 @@ const FractionAddition = () => {
             )}
           </div>
         );
+
       case 3:
         return (
           <div className="step-content">
-            <p>Simplify the fraction {studentAnswers.sumNumerator}/{result.steps.commonDenominator}</p>
+            <p>Simplify the fraction {studentAnswers.sumNumerator}/{studentAnswers.commonDenominator}</p>
             <div className="simplified-fraction">
               <div className="input-with-label">
                 <span>Simplified numerator:</span>
@@ -409,6 +450,8 @@ const FractionAddition = () => {
                   type="number"
                   value={studentAnswers.simplifiedNumerator}
                   onChange={(e) => handleStudentAnswerChange('simplifiedNumerator', e.target.value)}
+                  disabled={correctAnswers.simplifiedNumerator}
+                  className={correctAnswers.simplifiedNumerator ? 'correct' : ''}
                 />
               </div>
               <div className="fraction-divider">/</div>
@@ -418,6 +461,8 @@ const FractionAddition = () => {
                   type="number"
                   value={studentAnswers.simplifiedDenominator}
                   onChange={(e) => handleStudentAnswerChange('simplifiedDenominator', e.target.value)}
+                  disabled={correctAnswers.simplifiedDenominator}
+                  className={correctAnswers.simplifiedDenominator ? 'correct' : ''}
                 />
               </div>
             </div>
@@ -429,11 +474,6 @@ const FractionAddition = () => {
             {feedback && !isComplete && (
               <div className="feedback-container">
                 <p className={`feedback ${feedback.includes('Correct!') ? 'correct' : 'incorrect'}`}>{feedback}</p>
-                {feedback.includes('Correct!') && (
-                  <button className="next-button" onClick={handleNextStep}>
-                    Next Step →
-                  </button>
-                )}
               </div>
             )}
           </div>

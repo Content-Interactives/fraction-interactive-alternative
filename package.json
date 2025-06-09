@@ -2,7 +2,7 @@
   "name": "fractioninteractive",
   "private": true,
   "version": "0.0.0",
-  "homepage": "https://content-interactives.github.io/FractionInteractive",
+  "homepage": "https://github.com/Content-Interactives/fraction-interactive-alternative",
   "type": "module",
   "scripts": {
     "dev": "vite",

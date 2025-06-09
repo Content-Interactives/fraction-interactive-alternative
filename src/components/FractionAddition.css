@@ -1,10 +1,11 @@
 .fraction-addition-container {
-  width: 600px;
-  min-height: auto;
-  padding: 20px;
+  width: 500px;
+  min-height: 500px;
+  padding: 32px 20px 24px 20px;
   background: #f8f9fa;
-  border-radius: 10px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.10);
+  margin: 48px auto 0 auto;
 }
 
 .title {
@@ -112,40 +113,47 @@
 }
 
 .reset-button {
-  padding: 10px 20px;
-  background: #dc3545;
-  color: white;
+  padding: 14px 32px;
+  background: #adb5bd;
+  color: #fff;
   border: none;
-  border-radius: 5px;
+  border-radius: 8px;
   font-size: 1.2em;
   cursor: pointer;
   transition: transform 0.2s, background-color 0.2s;
-  margin: 20px auto;
+  margin: 48px auto 0 auto;
   display: block;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
 }
 
 .reset-button:hover {
   transform: scale(1.05);
-  background-color: #c82333;
+  background-color: #868e96;
 }
 
 .steps-container {
   width: 100%;
-  min-height: 300px;
+  min-height: 320px;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 15px;
   margin-top: 20px;
+  justify-content: center;
 }
 
 .step {
   width: 100%;
+  min-height: 180px;
   background: white;
-  border-radius: 10px;
-  padding: 20px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 16px;
+  padding: 28px 12px 20px 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.10);
   transition: all 0.5s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 .step-content {
@@ -307,4 +315,15 @@ input[type="number"] {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.prestep-pies {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.prestep-pies .pie-charts-container {
+  margin-bottom: 16px;
 } 

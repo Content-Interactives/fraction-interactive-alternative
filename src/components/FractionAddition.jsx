@@ -144,25 +144,18 @@ const FractionAddition = () => {
       case 0:
         return (
           <div className="step-content">
-            <h3>Step 1</h3>
-            <div className="pie-charts-container">
-              <div className="fraction-display">
-                <div className="pie-chart">
-                  {renderPieChart(f1.numerator, f1.denominator)}
-                  <span><Fraction numerator={f1.numerator} denominator={f1.denominator} /></span>
-                </div>
-                <div className="pie-chart">
-                  {renderPieChart(f2.numerator, f2.denominator)}
-                  <span><Fraction numerator={f2.numerator} denominator={f2.denominator} /></span>
-                </div>
-              </div>
+            <h3>Step 1: Find a common denominator</h3>
+            <div className="fraction-sum-row" style={{ marginTop: 16 }}>
+              <Fraction numerator={f1.numerator} denominator={f1.denominator} size="1.5em" />
+              <span className="plus-centered">+</span>
+              <Fraction numerator={f2.numerator} denominator={f2.denominator} size="1.5em" />
             </div>
           </div>
         );
       case 1:
         return (
           <div className="step-content">
-            <h3>Step 2</h3>
+            <h3>Step 2: Rewrite with common denominator</h3>
             <div className="adjusted-fractions fraction-sum-row">
               <span><Fraction numerator={result.steps.adjustedNumerator1} denominator={result.steps.commonDenominator} /></span>
               <span className="plus-centered">+</span>
@@ -173,7 +166,7 @@ const FractionAddition = () => {
       case 2:
         return (
           <div className="step-content">
-            <h3>Step 3</h3>
+            <h3>Step 3: Add the numerators</h3>
             <div className="sum-fraction">
               <Fraction numerator={result.steps.sumNumerator} denominator={result.steps.commonDenominator} size="1.5em" />
             </div>
@@ -182,7 +175,7 @@ const FractionAddition = () => {
       case 3:
         return (
           <div className="step-content">
-            <h3>Step 4</h3>
+            <h3>Step 4: Simplify if possible</h3>
             <div className="simplified-fraction">
               <span className="final-answer"><Fraction numerator={result.numerator} denominator={result.denominator} size="1.7em" /></span>
             </div>
@@ -288,14 +281,35 @@ const FractionAddition = () => {
               </div>
             </div>
           </div>
-          <button 
-            className="start-button" 
-            onClick={startSteps}
-            disabled={!fractions.fraction1.numerator || !fractions.fraction1.denominator || 
-                     !fractions.fraction2.numerator || !fractions.fraction2.denominator}
-          >
-            Start Steps
-          </button>
+          {/* Show pie charts and algebraic fractions dynamically as each fraction is entered */}
+          <div className="prestep-pies">
+            <div className="pie-charts-container">
+              <div className="fraction-display">
+                {fractions.fraction1.numerator && fractions.fraction1.denominator && (
+                  <div className="pie-chart">
+                    {renderPieChart(fractions.fraction1.numerator, fractions.fraction1.denominator)}
+                    <span><Fraction numerator={fractions.fraction1.numerator} denominator={fractions.fraction1.denominator} /></span>
+                  </div>
+                )}
+                {fractions.fraction2.numerator && fractions.fraction2.denominator && (
+                  <div className="pie-chart">
+                    {renderPieChart(fractions.fraction2.numerator, fractions.fraction2.denominator)}
+                    <span><Fraction numerator={fractions.fraction2.numerator} denominator={fractions.fraction2.denominator} /></span>
+                  </div>
+                )}
+              </div>
+            </div>
+            {fractions.fraction1.numerator && fractions.fraction1.denominator &&
+             fractions.fraction2.numerator && fractions.fraction2.denominator && (
+              <button 
+                className="start-button" 
+                onClick={startSteps}
+                style={{ marginTop: 24 }}
+              >
+                Continue →
+              </button>
+            )}
+          </div>
         </>
       ) : (
         <div className="steps-container">
@@ -311,7 +325,7 @@ const FractionAddition = () => {
             <div className="final-result" key={animationKey}>
               <h3>Fraction Addition Complete!</h3>
               <p>You've successfully added {fractions.fraction1.numerator}/{fractions.fraction1.denominator} and {fractions.fraction2.numerator}/{fractions.fraction2.denominator}</p>
-              <p className="final-answer">Final Answer: {result.numerator}/{result.denominator}</p>
+              <p className="final-answer"><Fraction numerator={result.numerator} denominator={result.denominator} size="1.7em" /></p>
               <div className="pie-charts-container">
                 <div className="pie-chart">
                   {renderPieChart(result.numerator, result.denominator)}

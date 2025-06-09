@@ -1,7 +1,7 @@
 .fraction-addition-container {
-  width: 500px;
+  width: 600px;
   min-height: auto;
-  padding: 12px;
+  padding: 20px;
   background: #f8f9fa;
   border-radius: 10px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -10,34 +10,34 @@
 .title {
   text-align: center;
   color: #0088FE;
-  margin-bottom: 5px;
-  font-size: 1.3em;
+  margin-bottom: 10px;
+  font-size: 1.5em;
 }
 
 .instructions {
   text-align: center;
   color: #495057;
-  margin-bottom: 8px;
-  font-size: 0.9em;
+  margin-bottom: 15px;
+  font-size: 1em;
 }
 
 .input-section {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 15px;
-  margin-bottom: 15px;
+  gap: 20px;
+  margin-bottom: 20px;
 }
 
 .fraction-input-group {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 5px;
+  gap: 8px;
 }
 
 .fraction-label {
-  font-size: 1em;
+  font-size: 1.1em;
   color: #495057;
   font-weight: 500;
   margin-bottom: 5px;
@@ -47,13 +47,13 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 3px;
+  gap: 5px;
 }
 
 .fraction-input .input-with-label {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   margin: 3px 0;
 }
 
@@ -65,38 +65,50 @@
 }
 
 .fraction-input input {
-  width: 50px;
-  height: 35px;
+  width: 60px;
+  height: 40px;
   text-align: center;
-  font-size: 1.1em;
+  font-size: 1.2em;
   border: 2px solid #0088FE;
   border-radius: 5px;
   margin: 0;
-}
-
-.fraction-input span {
-  font-size: 1.1em;
-  color: #495057;
-}
-
-.fraction-input input:disabled {
-  background-color: #e9ecef;
-  border-color: #ced4da;
-  color: #6c757d;
 }
 
 .fraction-line {
   width: 100%;
   height: 2px;
   background-color: #0088FE;
-  margin: 3px 0;
+  margin: 5px 0;
 }
 
 .plus-sign {
-  font-size: 1.5em;
+  font-size: 1.8em;
   color: #0088FE;
-  margin: 0 5px;
-  padding-bottom: 10px;
+  margin: 0 10px;
+  padding-bottom: 15px;
+}
+
+.start-button {
+  padding: 12px 24px;
+  background: #0088FE;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 1.2em;
+  cursor: pointer;
+  transition: transform 0.2s, background-color 0.2s;
+  margin: 20px auto;
+  display: block;
+}
+
+.start-button:hover:not(:disabled) {
+  transform: scale(1.05);
+  background-color: #0056b3;
+}
+
+.start-button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
 }
 
 .reset-button {
@@ -117,407 +129,137 @@
   background-color: #c82333;
 }
 
-.drag-drop-section {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-top: 10px;
-}
-
-.fractions-to-drag {
-  display: flex;
-  justify-content: center;
-  gap: 30px;
-}
-
-.drag-source {
-  min-height: 60px;
-  padding: 5px;
-  border: 2px dashed #0088FE;
-  border-radius: 8px;
-  background: rgba(0, 136, 254, 0.05);
-}
-
-.draggable-fraction {
-  padding: 10px 20px;
-  background: #0088FE;
-  color: white;
-  border-radius: 5px;
-  cursor: move;
-  font-size: 1.2em;
-  transition: transform 0.2s, box-shadow 0.2s;
-  user-select: none;
-  touch-action: none;
-}
-
-.draggable-fraction:hover {
-  transform: scale(1.05);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.draggable-fraction.dragging {
-  opacity: 0.5;
-  transform: scale(1.1);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-}
-
-.drop-zone {
-  min-height: 200px;
-  padding: 12px;
-  border: 2px dashed #0088FE;
-  border-radius: 8px;
-  background: rgba(0, 136, 254, 0.05);
-}
-
-.drop-zone.drag-over {
-  background: rgba(0, 136, 254, 0.1);
-  border-color: #0056b3;
-}
-
-.fractions-display {
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-  margin-bottom: 8px;
-}
-
-.dropped-fraction {
+.steps-container {
+  width: 100%;
+  min-height: 300px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
+  gap: 15px;
+  margin-top: 20px;
 }
 
-.fraction-display {
+.step {
+  width: 100%;
+  background: white;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.5s ease;
+}
+
+.step-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.step-content h3 {
+  color: #0088FE;
+  margin: 0 0 10px 0;
+  font-size: 1.3em;
+  text-align: center;
+}
+
+.step-content p {
+  margin: 0;
+  color: #495057;
+  font-size: 1.1em;
+  text-align: center;
+  line-height: 1.5;
+}
+
+.adjusted-fractions, .sum-fraction {
+  background: rgba(0, 136, 254, 0.1);
+  padding: 15px 25px;
+  border-radius: 8px;
   font-size: 1.2em;
   color: #0088FE;
   font-weight: 500;
 }
 
-.add-button {
+.simplified-fraction {
+  background: rgba(0, 136, 254, 0.1);
+  padding: 15px 25px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.simplified-fraction p {
+  margin: 5px 0;
+}
+
+.final-answer {
+  font-size: 1.3em !important;
+  font-weight: 600 !important;
+  color: #28a745 !important;
+  margin-top: 10px !important;
+}
+
+.continue-button {
   padding: 10px 20px;
-  background: #0088FE;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  font-size: 1.2em;
-  cursor: pointer;
-  transition: transform 0.2s, background-color 0.2s;
-  margin-top: 20px;
-}
-
-.add-button:hover {
-  transform: scale(1.05);
-  background-color: #0056b3;
-}
-
-.check-button {
-  padding: 8px 16px;
   background: #28a745;
   color: white;
   border: none;
   border-radius: 5px;
-  font-size: 1em;
+  font-size: 1.1em;
   cursor: pointer;
   transition: transform 0.2s, background-color 0.2s;
-  margin: 10px auto;
-  display: block;
+  margin-top: 20px;
 }
 
-.check-button:hover {
+.continue-button:hover {
   transform: scale(1.05);
   background-color: #218838;
 }
 
-.result-display {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  margin-top: 20px;
-}
-
-.step {
-  text-align: center;
-  font-size: 1.1em;
-  color: #495057;
-  background: rgba(0, 136, 254, 0.1);
-  padding: 15px;
-  border-radius: 5px;
-  width: 100%;
-  min-height: 60px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-}
-
-.step-content {
-  position: relative;
-  padding: 8px;
-  border-radius: 8px;
-  margin-top: 4px;
-}
-
-.step-content p {
-  margin: 0 0 8px 0;
-  text-align: center;
-  width: 100%;
-  font-size: 1em;
-  color: #495057;
-}
-
-.sum-numerator-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  margin: 15px 0;
-}
-
-.adjusted-fractions {
-  font-size: 1.1em;
-  color: #495057;
-  margin-right: 5px;
-}
-
-.sum-fraction-input {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.sum-fraction-input input {
-  width: 55px;
-  height: 35px;
-  text-align: center;
-  font-size: 1.1em;
-  border: 2px solid #0088FE;
-  border-radius: 5px;
-}
-
-.sum-fraction-input span {
-  font-size: 1.1em;
-  color: #495057;
-}
-
-.input-with-label {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  margin: 15px 0;
-}
-
-.input-with-label span {
-  color: #495057;
-  font-size: 1.1em;
-  min-width: 140px;
-  text-align: right;
-}
-
-.input-with-label input {
-  width: 70px;
-  height: 40px;
-  text-align: center;
-  font-size: 1.2em;
-  border: 2px solid #0088FE;
-  border-radius: 5px;
-  margin: 0 10px;
-}
-
-.adjusted-numerators {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 30px;
-  margin: 10px 0;
-}
-
-.adjusted-numerators .input-with-label {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-}
-
-.adjusted-numerators .input-with-label span {
-  font-size: 0.95em;
-  color: #495057;
-  text-align: center;
-}
-
-.adjusted-numerators .input-with-label input {
-  width: 55px;
-  height: 35px;
-  text-align: center;
-  font-size: 1.1em;
-  border: 2px solid #0088FE;
-  border-radius: 5px;
-}
-
-.adjusted-numerators .denominator {
-  margin-top: 2px;
-  font-size: 0.95em;
-  color: #495057;
-}
-
-.simplified-fraction {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 5px;
-  margin: 10px 0;
-}
-
-.simplified-fraction .input-with-label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.simplified-fraction .input-with-label span {
-  font-size: 1.1em;
-  color: #495057;
-  text-align: right;
-  min-width: 160px;
-}
-
-.simplified-fraction .input-with-label input {
-  width: 50px;
-  height: 35px;
-  text-align: center;
-  font-size: 1.1em;
-  border: 2px solid #0088FE;
-  border-radius: 5px;
-  margin: 0;
-}
-
-.simplified-fraction .fraction-divider {
-  font-size: 1.5em;
-  color: #495057;
-  margin: 2px 0;
-}
-
-.feedback-container {
-  margin-top: 10px;
-  position: relative;
-  width: 100%;
-  padding-bottom: 45px;
-}
-
-.feedback {
-  padding: 10px 15px;
-  border-radius: 5px;
-  font-size: 1em;
-  text-align: center;
-  margin-bottom: 10px;
-}
-
-.feedback.correct {
-  color: #28a745;
-  background-color: #d4edda;
-  border: 1px solid #c3e6cb;
-}
-
-.feedback.incorrect {
-  color: #dc3545;
-  background-color: #f8d7da;
-  border: 1px solid #f5c6cb;
-}
-
-.result-fraction {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  margin-top: 20px;
-}
-
-.result-fraction h3 {
-  color: #0088FE;
-  text-align: center;
-  margin-bottom: 10px;
-}
-
-.student-steps {
-  background: rgba(0, 136, 254, 0.1);
-  padding: 10px;
-  border-radius: 8px;
-  margin: 8px 0;
-  width: 100%;
-}
-
-.student-steps h4 {
-  color: #0088FE;
-  margin: 0 0 6px 0;
-  text-align: center;
-  font-size: 0.9em;
-}
-
-.student-steps p {
-  margin: 3px 0;
-  color: #495057;
-  font-size: 0.85em;
-}
-
 .final-result {
   width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  padding: 10px;
-  background: rgba(0, 136, 254, 0.05);
-  border-radius: 8px;
-  margin-top: 8px;
-}
-
-.final-result .feedback.correct {
-  color: #28a745;
-  background-color: #d4edda;
-  border: 1px solid #c3e6cb;
-  padding: 10px 15px;
-  border-radius: 5px;
-  font-size: 1em;
+  background: white;
+  border-radius: 10px;
+  padding: 25px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   text-align: center;
-  margin-bottom: 10px;
-  width: 100%;
+  animation: fadeIn 0.8s ease forwards;
 }
 
 .final-result h3 {
-  color: #0088FE;
+  color: #28a745;
+  font-size: 1.4em;
+  margin: 0 0 15px 0;
+}
+
+.final-result p {
+  color: #495057;
+  font-size: 1.1em;
+  margin: 10px 0;
+}
+
+.pie-charts-container {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin: 15px 0;
+}
+
+.fraction-display {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+}
+
+.pie-chart {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.pie-chart span {
   font-size: 1.2em;
-  margin: 0;
-  text-align: center;
-}
-
-.recharts-surface {
-  height: 100px !important;
-  width: 100px !important;
-  outline: none !important;
-}
-
-.recharts-wrapper {
-  height: 100px !important;
-  width: 100px !important;
-  outline: none !important;
-}
-
-.recharts-layer {
-  outline: none !important;
-}
-
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  color: #0088FE;
+  font-weight: 500;
 }
 
 @keyframes fadeIn {
@@ -529,12 +271,6 @@
   }
 }
 
-.step {
-  transition: all 0.5s ease;
-  opacity: 1;
-  transform: translateY(0);
-}
-
 .step.step-exit {
   opacity: 0;
   transform: translateY(-20px);
@@ -543,84 +279,6 @@
 .step.step-enter {
   opacity: 1;
   transform: translateY(0);
-}
-
-.final-result {
-  animation: fadeIn 0.8s ease forwards;
-}
-
-.step-animation {
-  opacity: 0;
-  animation: slideIn 0.5s ease forwards;
-}
-
-.pie-chart-container {
-  transform: scale(0.8);
-  margin: -10px;
-}
-
-.pie-charts-container {
-  margin: 8px 0;
-}
-
-.draggable-fraction {
-  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
-}
-
-.draggable-fraction:hover {
-  transform: scale(1.05);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-.draggable-fraction.dragging {
-  opacity: 0.7;
-  transform: scale(1.1);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
-}
-
-.drop-zone {
-  transition: background-color 0.3s ease, border-color 0.3s ease;
-}
-
-.drop-zone.drag-over {
-  background: rgba(0, 136, 254, 0.15);
-  border-color: #0056b3;
-}
-
-.check-button, .reset-button {
-  transition: transform 0.2s ease, background-color 0.2s ease;
-}
-
-.check-button:hover, .reset-button:hover {
-  transform: scale(1.05);
-}
-
-.button-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  margin-top: 20px;
-  padding: 0 10px;
-  position: relative;
-}
-
-.next-button {
-  position: absolute;
-  right: 10px;
-  bottom: 0;
-  background-color: #28a745;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 0.95em;
-  transition: background-color 0.3s;
-}
-
-.next-button:hover {
-  background-color: #218838;
 }
 
 /* Remove number input spinners for all browsers */
@@ -634,41 +292,19 @@ input[type="number"] {
   -moz-appearance: textfield;
 }
 
-.input-with-label input.correct {
-  border-color: #28a745;
-  background-color: #f8fff9;
-  color: #28a745;
+.fraction-sum-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+}
+
+.plus-centered {
+  font-size: 2em;
+  color: #0088FE;
   font-weight: 500;
-}
-
-.input-with-label input.correct:disabled {
-  background-color: #f8fff9;
-  opacity: 1;
-  cursor: not-allowed;
-}
-
-.sum-fraction-input input.correct {
-  border-color: #28a745;
-  background-color: #f8fff9;
-  color: #28a745;
-  font-weight: 500;
-}
-
-.sum-fraction-input input.correct:disabled {
-  background-color: #f8fff9;
-  opacity: 1;
-  cursor: not-allowed;
-}
-
-.simplified-fraction input.correct {
-  border-color: #28a745;
-  background-color: #f8fff9;
-  color: #28a745;
-  font-weight: 500;
-}
-
-.simplified-fraction input.correct:disabled {
-  background-color: #f8fff9;
-  opacity: 1;
-  cursor: not-allowed;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 } 

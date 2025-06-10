@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { PieChart, Pie, Cell } from 'recharts';
 import './FractionAddition.css';
+import '../assets/orbit-glow-button/orbit-glow-button.css';
 
 // Helper component for algebraic fraction notation
 const Fraction = ({ numerator, denominator, size = '1.2em' }) => (
-  <span style={{ display: 'inline-block', textAlign: 'center', fontSize: size, lineHeight: 1 }}>
-    <span style={{ display: 'block', fontWeight: 500 }}>{numerator}</span>
-    <span style={{ display: 'block', borderTop: '2px solid #0088FE', width: '100%', margin: '0 auto' }}></span>
-    <span style={{ display: 'block', fontWeight: 500 }}>{denominator}</span>
+  <span style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', fontSize: size, lineHeight: 1, verticalAlign: 'middle' }}>
+    <span style={{ display: 'block', fontWeight: 500, color: '#23205B' }}>{numerator}</span>
+    <span style={{ display: 'block', borderTop: '2px solid #5750E3', width: '100%', margin: '0 auto' }}></span>
+    <span style={{ display: 'block', fontWeight: 500, color: '#23205B' }}>{denominator}</span>
   </span>
 );
 
@@ -134,8 +135,8 @@ const FractionAddition = () => {
     return data;
   };
 
-  const COLORS = ['#0088FE', '#FFFFFF'];
-  const OUTLINE_COLOR = '#1565c0';
+  const COLORS = ['#5750E3', '#FFFFFF'];
+  const OUTLINE_COLOR = '#3D389F';
 
   const renderStepContent = () => {
     const f1 = fractions.fraction1;
@@ -179,10 +180,9 @@ const FractionAddition = () => {
             <div className="simplified-fraction">
               <span className="final-answer"><Fraction numerator={result.numerator} denominator={result.denominator} size="1.7em" /></span>
             </div>
-            <div className="pie-charts-container">
-              <div className="pie-chart">
+            <div className="pie-charts-container" style={{ justifyContent: 'center' }}>
+              <div className="pie-chart" style={{ marginLeft: '50px' }}>
                 {renderPieChart(result.numerator, result.denominator)}
-                <span><Fraction numerator={result.numerator} denominator={result.denominator} /></span>
               </div>
             </div>
           </div>
@@ -222,123 +222,127 @@ const FractionAddition = () => {
 
   return (
     <div className="fraction-addition-container">
-      <h2 className="title">Fraction Addition</h2>
-      {!showSteps ? (
-        <>
-          <p className="instructions">Enter two fractions to see how to add them step by step</p>
-          <div className="input-section">
-            <div className="fraction-input-group">
-              <label className="fraction-label">First Fraction</label>
-              <div className="fraction-input">
-                <div className="input-with-label">
-                  <span>Numerator:</span>
-                  <input
-                    type="number"
-                    min="1"
-                    max="10"
-                    value={fractions.fraction1.numerator}
-                    onChange={(e) => handleInputChange('fraction1', 'numerator', e.target.value)}
-                  />
-                </div>
-                <div className="fraction-line"></div>
-                <div className="input-with-label">
-                  <span>Denominator:</span>
-                  <input
-                    type="number"
-                    min="1"
-                    max="10"
-                    value={fractions.fraction1.denominator}
-                    onChange={(e) => handleInputChange('fraction1', 'denominator', e.target.value)}
-                  />
-                </div>
-              </div>
-            </div>
-            <span className="plus-sign">+</span>
-            <div className="fraction-input-group">
-              <label className="fraction-label">Second Fraction</label>
-              <div className="fraction-input">
-                <div className="input-with-label">
-                  <span>Numerator:</span>
-                  <input
-                    type="number"
-                    min="1"
-                    max="10"
-                    value={fractions.fraction2.numerator}
-                    onChange={(e) => handleInputChange('fraction2', 'numerator', e.target.value)}
-                  />
-                </div>
-                <div className="fraction-line"></div>
-                <div className="input-with-label">
-                  <span>Denominator:</span>
-                  <input
-                    type="number"
-                    min="1"
-                    max="10"
-                    value={fractions.fraction2.denominator}
-                    onChange={(e) => handleInputChange('fraction2', 'denominator', e.target.value)}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-          {/* Show pie charts and algebraic fractions dynamically as each fraction is entered */}
-          <div className="prestep-pies">
-            <div className="pie-charts-container">
-              <div className="fraction-display">
-                {fractions.fraction1.numerator && fractions.fraction1.denominator && (
-                  <div className="pie-chart">
-                    {renderPieChart(fractions.fraction1.numerator, fractions.fraction1.denominator)}
-                    <span><Fraction numerator={fractions.fraction1.numerator} denominator={fractions.fraction1.denominator} /></span>
+      <div className="content-inner">
+        <h2 className="title">Fraction Addition</h2>
+        {!showSteps ? (
+          <>
+            <p className="instructions">Enter two fractions to see how to add them step by step</p>
+            <div className="input-section">
+              <div className="fraction-input-group">
+                <label className="fraction-label">First Fraction</label>
+                <div className="fraction-input">
+                  <div className="input-with-label">
+                    <span>Numerator:</span>
+                    <input
+                      type="number"
+                      min="1"
+                      max="10"
+                      value={fractions.fraction1.numerator}
+                      onChange={(e) => handleInputChange('fraction1', 'numerator', e.target.value)}
+                    />
                   </div>
-                )}
-                {fractions.fraction2.numerator && fractions.fraction2.denominator && (
-                  <div className="pie-chart">
-                    {renderPieChart(fractions.fraction2.numerator, fractions.fraction2.denominator)}
-                    <span><Fraction numerator={fractions.fraction2.numerator} denominator={fractions.fraction2.denominator} /></span>
+                  <div className="fraction-line"></div>
+                  <div className="input-with-label">
+                    <span>Denominator:</span>
+                    <input
+                      type="number"
+                      min="1"
+                      max="10"
+                      value={fractions.fraction1.denominator}
+                      onChange={(e) => handleInputChange('fraction1', 'denominator', e.target.value)}
+                    />
                   </div>
-                )}
+                </div>
+              </div>
+              <span className="plus-sign">+</span>
+              <div className="fraction-input-group">
+                <label className="fraction-label">Second Fraction</label>
+                <div className="fraction-input">
+                  <div className="input-with-label">
+                    <span>Numerator:</span>
+                    <input
+                      type="number"
+                      min="1"
+                      max="10"
+                      value={fractions.fraction2.numerator}
+                      onChange={(e) => handleInputChange('fraction2', 'numerator', e.target.value)}
+                    />
+                  </div>
+                  <div className="fraction-line"></div>
+                  <div className="input-with-label">
+                    <span>Denominator:</span>
+                    <input
+                      type="number"
+                      min="1"
+                      max="10"
+                      value={fractions.fraction2.denominator}
+                      onChange={(e) => handleInputChange('fraction2', 'denominator', e.target.value)}
+                    />
+                  </div>
+                </div>
               </div>
             </div>
-            {fractions.fraction1.numerator && fractions.fraction1.denominator &&
-             fractions.fraction2.numerator && fractions.fraction2.denominator && (
-              <button 
-                className="start-button" 
-                onClick={startSteps}
-                style={{ marginTop: 24 }}
-              >
-                Continue →
-              </button>
+            <div className="fraction-pie-row">
+              {fractions.fraction1.numerator && fractions.fraction1.denominator && (
+                <div className="fraction-cell">
+                  <Fraction numerator={fractions.fraction1.numerator} denominator={fractions.fraction1.denominator} />
+                </div>
+              )}
+              {fractions.fraction1.numerator && fractions.fraction1.denominator && (
+                <div className="pie-chart">
+                  {renderPieChart(fractions.fraction1.numerator, fractions.fraction1.denominator)}
+                </div>
+              )}
+              {fractions.fraction2.numerator && fractions.fraction2.denominator && (
+                <div className="pie-chart">
+                  {renderPieChart(fractions.fraction2.numerator, fractions.fraction2.denominator)}
+                </div>
+              )}
+              {fractions.fraction2.numerator && fractions.fraction2.denominator && (
+                <div className="fraction-cell">
+                  <Fraction numerator={fractions.fraction2.numerator} denominator={fractions.fraction2.denominator} />
+                </div>
+              )}
+            </div>
+          </>
+        ) : (
+          <div className="steps-container">
+            {!isComplete && (
+              <div className={`step ${stepAnimation}`} style={{ background: 'none', boxShadow: 'none', padding: 0 }}>
+                {renderStepContent()}
+              </div>
+            )}
+            {isComplete && (
+              <div className="final-result" key={animationKey}>
+                <h3>Fraction Addition Complete!</h3>
+                <p>You've successfully added {fractions.fraction1.numerator}/{fractions.fraction1.denominator} and {fractions.fraction2.numerator}/{fractions.fraction2.denominator}</p>
+                <p className="final-answer"><Fraction numerator={result.numerator} denominator={result.denominator} size="1.7em" /></p>
+                <div className="pie-charts-container" style={{ justifyContent: 'center' }}>
+                  <div className="pie-chart" style={{ marginLeft: '50px' }}>
+                    {renderPieChart(result.numerator, result.denominator)}
+                  </div>
+                </div>
+              </div>
             )}
           </div>
-        </>
-      ) : (
-        <div className="steps-container">
-          {!isComplete && (
-            <div className={`step ${stepAnimation}`}>
-              {renderStepContent()}
-              <button className="continue-button" onClick={handleNextStep}>
-                {currentStep < 3 ? 'Continue →' : 'Finish'}
-              </button>
-            </div>
+        )}
+      </div>
+      {/* Button bar at the bottom left */}
+      <div className="button-bar">
+        <button className="reset-button" onClick={resetAll}>
+          Reset
+        </button>
+        {(fractions.fraction1.numerator && fractions.fraction1.denominator &&
+          fractions.fraction2.numerator && fractions.fraction2.denominator &&
+          (!showSteps || (showSteps && !isComplete))) && (
+            <button
+              className="glow-button simple-glow button-bar-right"
+              onClick={!showSteps ? startSteps : handleNextStep}
+            >
+              {showSteps && !isComplete && currentStep >= 3 ? 'Finish' : 'Continue'}
+            </button>
           )}
-          {isComplete && (
-            <div className="final-result" key={animationKey}>
-              <h3>Fraction Addition Complete!</h3>
-              <p>You've successfully added {fractions.fraction1.numerator}/{fractions.fraction1.denominator} and {fractions.fraction2.numerator}/{fractions.fraction2.denominator}</p>
-              <p className="final-answer"><Fraction numerator={result.numerator} denominator={result.denominator} size="1.7em" /></p>
-              <div className="pie-charts-container">
-                <div className="pie-chart">
-                  {renderPieChart(result.numerator, result.denominator)}
-                  <span><Fraction numerator={result.numerator} denominator={result.denominator} /></span>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-      <button className="reset-button" onClick={resetAll}>
-        Reset
-      </button>
+      </div>
     </div>
   );
 };

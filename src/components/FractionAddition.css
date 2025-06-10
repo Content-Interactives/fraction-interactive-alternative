@@ -8,6 +8,7 @@
   margin: 32px auto 0 auto;
   position: relative !important;
   z-index: 100;
+  outline: none;
 }
 
 .title {
@@ -86,6 +87,7 @@
   height: 2px;
   background-color: #5750E3;
   margin: 5px 0;
+  outline: none;
 }
 
 .plus-sign {
@@ -295,6 +297,7 @@
   gap: 10px;
   width: 90px !important;
   height: 90px !important;
+  outline: none;
 }
 
 .pie-chart span {
@@ -465,7 +468,7 @@ input[type="number"] {
   grid-template-columns: repeat(4, 1fr);
   justify-items: center;
   align-items: center;
-  margin-top: 12px;
+  margin-top: 42px;
   width: 100%;
   gap: 0;
   outline: none;

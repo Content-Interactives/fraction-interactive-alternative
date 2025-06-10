@@ -181,9 +181,7 @@ const FractionAddition = () => {
               <span className="final-answer"><Fraction numerator={result.numerator} denominator={result.denominator} size="1.7em" /></span>
             </div>
             <div className="pie-charts-container" style={{ justifyContent: 'center' }}>
-              <div className="pie-chart" style={{ marginLeft: '50px' }}>
-                {renderPieChart(result.numerator, result.denominator)}
-              </div>
+              {renderImproperPieCharts(result.numerator, result.denominator)}
             </div>
           </div>
         );
@@ -220,6 +218,37 @@ const FractionAddition = () => {
     </PieChart>
   );
 
+  // Helper to render multiple pie charts for improper fractions
+  const renderImproperPieCharts = (numerator, denominator) => {
+    if (numerator <= denominator) {
+      // Proper fraction: just one pie chart
+      return (
+        <div className="pie-chart" style={{ marginLeft: '50px' }}>
+          {renderPieChart(numerator, denominator)}
+        </div>
+      );
+    }
+    // Improper: show one pie for each whole, and one for the remainder if any
+    const pies = [];
+    const whole = Math.floor(numerator / denominator);
+    const remainder = numerator % denominator;
+    for (let i = 0; i < whole; i++) {
+      pies.push(
+        <div className="pie-chart" key={i} style={{ marginLeft: i === 0 ? '50px' : '10px' }}>
+          {renderPieChart(denominator, denominator)}
+        </div>
+      );
+    }
+    if (remainder > 0) {
+      pies.push(
+        <div className="pie-chart" key={whole} style={{ marginLeft: '10px' }}>
+          {renderPieChart(remainder, denominator)}
+        </div>
+      );
+    }
+    return pies;
+  };
+
   return (
     <div className="fraction-addition-container">
       <div className="content-inner">
@@ -232,7 +261,7 @@ const FractionAddition = () => {
                 <label className="fraction-label">First Fraction</label>
                 <div className="fraction-input">
                   <div className="input-with-label">
-                    <span>Numerator:</span>
+                    <span style={{ marginRight: '6px' }}>Numerator: </span>
                     <input
                       type="number"
                       min="1"
@@ -243,7 +272,7 @@ const FractionAddition = () => {
                   </div>
                   <div className="fraction-line"></div>
                   <div className="input-with-label">
-                    <span>Denominator:</span>
+                    <span style={{ marginRight: '6px' }}>Denominator: </span>
                     <input
                       type="number"
                       min="1"
@@ -259,7 +288,7 @@ const FractionAddition = () => {
                 <label className="fraction-label">Second Fraction</label>
                 <div className="fraction-input">
                   <div className="input-with-label">
-                    <span>Numerator:</span>
+                    <span style={{ marginRight: '6px' }}>Numerator: </span>
                     <input
                       type="number"
                       min="1"
@@ -270,7 +299,7 @@ const FractionAddition = () => {
                   </div>
                   <div className="fraction-line"></div>
                   <div className="input-with-label">
-                    <span>Denominator:</span>
+                    <span style={{ marginRight: '6px' }}>Denominator: </span>
                     <input
                       type="number"
                       min="1"
@@ -318,9 +347,7 @@ const FractionAddition = () => {
                 <p>You've successfully added {fractions.fraction1.numerator}/{fractions.fraction1.denominator} and {fractions.fraction2.numerator}/{fractions.fraction2.denominator}</p>
                 <p className="final-answer"><Fraction numerator={result.numerator} denominator={result.denominator} size="1.7em" /></p>
                 <div className="pie-charts-container" style={{ justifyContent: 'center' }}>
-                  <div className="pie-chart" style={{ marginLeft: '50px' }}>
-                    {renderPieChart(result.numerator, result.denominator)}
-                  </div>
+                  {renderImproperPieCharts(result.numerator, result.denominator)}
                 </div>
               </div>
             )}

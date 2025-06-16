@@ -12,6 +12,21 @@ const Fraction = ({ numerator, denominator, size = '1.2em' }) => (
   </span>
 );
 
+// Helper to render a mixed number if improper
+const MixedFraction = ({ numerator, denominator, size = '1.7em' }) => {
+  if (numerator < denominator) {
+    return <Fraction numerator={numerator} denominator={denominator} size={size} />;
+  }
+  const whole = Math.floor(numerator / denominator);
+  const remainder = numerator % denominator;
+  return (
+    <span style={{ display: 'inline-flex', alignItems: 'center', fontSize: size }}>
+      <span style={{ marginRight: '0.2em', fontWeight: 500, color: '#23205B' }}>{whole}</span>
+      {remainder > 0 && <Fraction numerator={remainder} denominator={denominator} size={`calc(${size} * 0.8)`} />}
+    </span>
+  );
+};
+
 const FractionAddition = () => {
   const [fractions, setFractions] = useState({
     fraction1: { numerator: '', denominator: '' },
@@ -23,6 +38,16 @@ const FractionAddition = () => {
   const [stepAnimation, setStepAnimation] = useState('');
   const [isComplete, setIsComplete] = useState(false);
   const [animationKey, setAnimationKey] = useState(0);
+  const [animatedDenominator1, setAnimatedDenominator1] = useState(null);
+  const [animatedDenominator2, setAnimatedDenominator2] = useState(null);
+  const [isAnimatingDenominator, setIsAnimatingDenominator] = useState(false);
+  const [step1Visible, setStep1Visible] = useState(false);
+  const [step2Visible, setStep2Visible] = useState(false);
+  const [animatedNumerator1, setAnimatedNumerator1] = useState(null);
+  const [animatedNumerator2, setAnimatedNumerator2] = useState(null);
+  const [step3AnimatedNumerator1, setStep3AnimatedNumerator1] = useState(null);
+  const [step3AnimatedNumerator2, setStep3AnimatedNumerator2] = useState(null);
+  const [hideContinue, setHideContinue] = useState(false);
 
   useEffect(() => {
     // Trigger step animation when currentStep changes
@@ -30,8 +55,89 @@ const FractionAddition = () => {
     const timer = setTimeout(() => {
       setStepAnimation('step-enter');
     }, 50);
+    // Fade in Step 1
+    if (currentStep === 0 && showSteps) {
+      setStep1Visible(false);
+      setTimeout(() => setStep1Visible(true), 50);
+    }
+    // Fade in Step 2
+    if (currentStep === 1 && showSteps) {
+      setStep2Visible(false);
+      setTimeout(() => setStep2Visible(true), 50);
+    }
     return () => clearTimeout(timer);
-  }, [currentStep]);
+  }, [currentStep, showSteps]);
+
+  // When step or fractions change, reset animated denominators
+  useEffect(() => {
+    if (currentStep === 0 && showSteps) {
+      setAnimatedDenominator1(fractions.fraction1.denominator);
+      setAnimatedDenominator2(fractions.fraction2.denominator);
+    }
+  }, [currentStep, showSteps, fractions.fraction1.denominator, fractions.fraction2.denominator]);
+
+  // Animate numerators and denominators after Step 2 fade-in, with 1s delay
+  useEffect(() => {
+    if (currentStep === 1 && showSteps && step2Visible) {
+      const delay = setTimeout(() => {
+        setIsAnimatingDenominator(true);
+        const startDen1 = parseInt(fractions.fraction1.denominator);
+        const startDen2 = parseInt(fractions.fraction2.denominator);
+        const targetDen = result.steps.commonDenominator;
+        let d1 = startDen1;
+        let d2 = startDen2;
+        const interval = 100;
+        const animate = () => {
+          let changed = false;
+          if (d1 < targetDen) { d1++; changed = true; }
+          if (d2 < targetDen) { d2++; changed = true; }
+          setAnimatedDenominator1(d1);
+          setAnimatedDenominator2(d2);
+          if (changed) {
+            setTimeout(animate, interval);
+          } else {
+            setIsAnimatingDenominator(false);
+            setHideContinue(false); // Show Continue button after animation
+          }
+        };
+        animate();
+      }, 1000); // 1 second delay
+      return () => clearTimeout(delay);
+    }
+  }, [currentStep, showSteps, step2Visible]);
+
+  // Fade in Step 3 and animate numerators
+  useEffect(() => {
+    if (currentStep === 2 && showSteps) {
+      setStep3AnimatedNumerator1(fractions.fraction1.numerator);
+      setStep3AnimatedNumerator2(fractions.fraction2.numerator);
+      setTimeout(() => {
+        // Animate numerators after 1s delay
+        setTimeout(() => {
+          const startNum1 = parseInt(fractions.fraction1.numerator);
+          const startNum2 = parseInt(fractions.fraction2.numerator);
+          const targetNum1 = result.steps.adjustedNumerator1;
+          const targetNum2 = result.steps.adjustedNumerator2;
+          let n1 = startNum1;
+          let n2 = startNum2;
+          const interval = 200;
+          const animate = () => {
+            let changed = false;
+            if (n1 < targetNum1) { n1++; changed = true; }
+            if (n2 < targetNum2) { n2++; changed = true; }
+            setStep3AnimatedNumerator1(n1);
+            setStep3AnimatedNumerator2(n2);
+            if (changed) {
+              setTimeout(animate, interval);
+            } else {
+              setHideContinue(false); // Show Continue button after animation in Step 3
+            }
+          };
+          animate();
+        }, 1000); // 1 second delay after fade-in
+      }, 50);
+    }
+  }, [currentStep, showSteps]);
 
   const handleInputChange = (fractionKey, part, value) => {
     if (showSteps) return;
@@ -62,6 +168,15 @@ const FractionAddition = () => {
     setShowSteps(false);
     setResult(null);
     setIsComplete(false);
+    setStep1Visible(false);
+    setStep2Visible(false);
+    setHideContinue(false);
+    setAnimatedDenominator1(null);
+    setAnimatedDenominator2(null);
+    setAnimatedNumerator1(null);
+    setAnimatedNumerator2(null);
+    setStep3AnimatedNumerator1(null);
+    setStep3AnimatedNumerator2(null);
   };
 
   const startSteps = () => {
@@ -101,9 +216,19 @@ const FractionAddition = () => {
   };
 
   const handleNextStep = () => {
+    if (currentStep === 0 && result) {
+      setHideContinue(true); // Hide Continue button immediately
+      setCurrentStep(currentStep + 1); // Go to step 2, let fade-in and pie animation handle next
+      return;
+    }
+    if (currentStep === 1 && result) {
+      setHideContinue(true); // Hide Continue button immediately for Step 2
+      setCurrentStep(currentStep + 1);
+      return;
+    }
     setStepAnimation('step-exit');
     setTimeout(() => {
-      if (currentStep < 3) {
+      if (currentStep < 4) {
         setCurrentStep(currentStep + 1);
       } else {
         setIsComplete(true);
@@ -141,46 +266,97 @@ const FractionAddition = () => {
   const renderStepContent = () => {
     const f1 = fractions.fraction1;
     const f2 = fractions.fraction2;
+    const pieStepStyle = { marginLeft: '40px' };
     switch (currentStep) {
       case 0:
         return (
-          <div className="step-content">
+          <div className={`step-content fade-in-step1${step1Visible ? '' : ' fade-in-step1-hidden'}`}>
             <h3>Step 1: Find a common denominator</h3>
             <div className="fraction-sum-row" style={{ marginTop: 16 }}>
               <Fraction numerator={f1.numerator} denominator={f1.denominator} size="1.5em" />
               <span className="plus-centered">+</span>
               <Fraction numerator={f2.numerator} denominator={f2.denominator} size="1.5em" />
             </div>
+            <div className="pie-charts-container" style={{ justifyContent: 'center', marginTop: '20px', ...pieStepStyle }}>
+              <div className="pie-charts-flex">
+                <div className="pie-chart">
+                  {renderPieChart(f1.numerator, f1.denominator)}
+                </div>
+                <div className="pie-chart">
+                  {renderPieChart(f2.numerator, f2.denominator)}
+                </div>
+              </div>
+            </div>
           </div>
         );
       case 1:
         return (
-          <div className="step-content">
-            <h3>Step 2: Rewrite with common denominator</h3>
+          <div className={`step-content fade-in-step2${step2Visible ? '' : ' fade-in-step2-hidden'}`}>
+            <h3>Step 2: Rewrite with common denominator (denominator only)</h3>
             <div className="adjusted-fractions fraction-sum-row">
-              <span><Fraction numerator={result.steps.adjustedNumerator1} denominator={result.steps.commonDenominator} /></span>
+              <span><Fraction numerator={f1.numerator} denominator={animatedDenominator1 || f1.denominator} /></span>
               <span className="plus-centered">+</span>
-              <span><Fraction numerator={result.steps.adjustedNumerator2} denominator={result.steps.commonDenominator} /></span>
+              <span><Fraction numerator={f2.numerator} denominator={animatedDenominator2 || f2.denominator} /></span>
+            </div>
+            <div className="pie-charts-container" style={{ justifyContent: 'center', marginTop: '20px', ...pieStepStyle }}>
+              <div className="pie-charts-flex">
+                <div className="pie-chart">
+                  {renderPieChart(f1.numerator, animatedDenominator1 || result.steps.commonDenominator)}
+                </div>
+                <div className="pie-chart">
+                  {renderPieChart(f2.numerator, animatedDenominator2 || result.steps.commonDenominator)}
+                </div>
+              </div>
             </div>
           </div>
         );
       case 2:
         return (
           <div className="step-content">
-            <h3>Step 3: Add the numerators</h3>
-            <div className="sum-fraction">
-              <Fraction numerator={result.steps.sumNumerator} denominator={result.steps.commonDenominator} size="1.5em" />
+            <h3>Step 3: Rewrite with common denominator (numerator and denominator)</h3>
+            <div className="adjusted-fractions fraction-sum-row">
+              <span><Fraction numerator={result.steps.adjustedNumerator1} denominator={result.steps.commonDenominator} /></span>
+              <span className="plus-centered">+</span>
+              <span><Fraction numerator={result.steps.adjustedNumerator2} denominator={result.steps.commonDenominator} /></span>
+            </div>
+            <div className="pie-charts-container" style={{ justifyContent: 'center', marginTop: '20px', ...pieStepStyle }}>
+              <div className="pie-charts-flex">
+                <div className="pie-chart">
+                  {renderPieChart(
+                    step3AnimatedNumerator1 !== null ? step3AnimatedNumerator1 : result.steps.adjustedNumerator1,
+                    result.steps.commonDenominator
+                  )}
+                </div>
+                <div className="pie-chart">
+                  {renderPieChart(
+                    step3AnimatedNumerator2 !== null ? step3AnimatedNumerator2 : result.steps.adjustedNumerator2,
+                    result.steps.commonDenominator
+                  )}
+                </div>
+              </div>
             </div>
           </div>
         );
       case 3:
         return (
           <div className="step-content">
-            <h3>Step 4: Simplify if possible</h3>
-            <div className="simplified-fraction">
-              <span className="final-answer"><Fraction numerator={result.numerator} denominator={result.denominator} size="1.7em" /></span>
+            <h3>Step 4: Add the numerators</h3>
+            <div className="sum-fraction">
+              <Fraction numerator={result.steps.sumNumerator} denominator={result.steps.commonDenominator} size="1.5em" />
             </div>
-            <div className="pie-charts-container" style={{ justifyContent: 'center' }}>
+            <div className="pie-charts-container" style={{ justifyContent: 'center', marginTop: '20px', ...pieStepStyle }}>
+              {renderImproperPieCharts(result.steps.sumNumerator, result.steps.commonDenominator)}
+            </div>
+          </div>
+        );
+      case 4:
+        return (
+          <div className="step-content">
+            <h3>Step 5: Simplify if possible</h3>
+            <div className="simplified-fraction">
+              <span className="final-answer"><MixedFraction numerator={result.numerator} denominator={result.denominator} size="1.7em" /></span>
+            </div>
+            <div className="pie-charts-container" style={{ justifyContent: 'center', marginTop: '20px', ...pieStepStyle }}>
               {renderImproperPieCharts(result.numerator, result.denominator)}
             </div>
           </div>
@@ -223,8 +399,10 @@ const FractionAddition = () => {
     if (numerator <= denominator) {
       // Proper fraction: just one pie chart
       return (
-        <div className="pie-chart" style={{ marginLeft: '50px' }}>
-          {renderPieChart(numerator, denominator)}
+        <div className="pie-charts-flex">
+          <div className="pie-chart">
+            {renderPieChart(numerator, denominator)}
+          </div>
         </div>
       );
     }
@@ -234,19 +412,19 @@ const FractionAddition = () => {
     const remainder = numerator % denominator;
     for (let i = 0; i < whole; i++) {
       pies.push(
-        <div className="pie-chart" key={i} style={{ marginLeft: i === 0 ? '50px' : '10px' }}>
+        <div className="pie-chart" key={i}>
           {renderPieChart(denominator, denominator)}
         </div>
       );
     }
     if (remainder > 0) {
       pies.push(
-        <div className="pie-chart" key={whole} style={{ marginLeft: '10px' }}>
+        <div className="pie-chart" key={whole}>
           {renderPieChart(remainder, denominator)}
         </div>
       );
     }
-    return pies;
+    return <div className="pie-charts-flex">{pies}</div>;
   };
 
   return (
@@ -345,7 +523,7 @@ const FractionAddition = () => {
               <div className="final-result" key={animationKey}>
                 <h3>Fraction Addition Complete!</h3>
                 <p>You've successfully added {fractions.fraction1.numerator}/{fractions.fraction1.denominator} and {fractions.fraction2.numerator}/{fractions.fraction2.denominator}</p>
-                <p className="final-answer"><Fraction numerator={result.numerator} denominator={result.denominator} size="1.7em" /></p>
+                <p className="final-answer"><MixedFraction numerator={result.numerator} denominator={result.denominator} size="1.7em" /></p>
                 <div className="pie-charts-container" style={{ justifyContent: 'center' }}>
                   {renderImproperPieCharts(result.numerator, result.denominator)}
                 </div>
@@ -361,12 +539,12 @@ const FractionAddition = () => {
         </button>
         {(fractions.fraction1.numerator && fractions.fraction1.denominator &&
           fractions.fraction2.numerator && fractions.fraction2.denominator &&
-          (!showSteps || (showSteps && !isComplete))) && (
+          (!showSteps || (showSteps && !isComplete)) && !isAnimatingDenominator && !hideContinue) && (
             <button
               className="glow-button simple-glow button-bar-right"
               onClick={!showSteps ? startSteps : handleNextStep}
             >
-              {showSteps && !isComplete && currentStep >= 3 ? 'Finish' : 'Continue'}
+              {showSteps && !isComplete && currentStep >= 4 ? 'Finish' : 'Continue'}
             </button>
           )}
       </div>

@@ -8,7 +8,6 @@
   margin: 32px auto 0 auto;
   position: relative !important;
   z-index: 100;
-  outline: none;
 }
 
 .title {
@@ -31,7 +30,6 @@
   align-items: center;
   gap: 20px;
   margin-bottom: 20px;
-  outline: none;
 }
 
 .fraction-input-group {
@@ -39,7 +37,6 @@
   flex-direction: column;
   align-items: center;
   gap: 8px;
-  outline: none;
   width: 150px;
 }
 
@@ -55,7 +52,6 @@
   flex-direction: column;
   align-items: center;
   gap: 5px;
-  outline: none;
   width: 100%;
 }
 
@@ -151,7 +147,6 @@
   gap: 15px;
   margin-top: 20px;
   justify-content: center;
-  outline: none;
 }
 
 .step {
@@ -173,7 +168,6 @@
   flex-direction: column;
   align-items: center;
   gap: 15px;
-  outline: none;
 }
 
 .step-content h3 {
@@ -261,8 +255,17 @@
 .pie-charts-container {
   display: flex;
   justify-content: center;
+  align-items: center;
+  width: 100%;
+  margin: 20px 0 0 0 !important;
+}
+
+.pie-charts-flex {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
   gap: 20px;
-  margin: 15px 0;
 }
 
 .fraction-display {
@@ -292,18 +295,27 @@
 
 .pie-chart {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 10px;
-  width: 90px !important;
-  height: 90px !important;
-  outline: none;
+  justify-content: center;
+  width: 120px !important;
+  height: 120px !important;
+  margin: 0 !important;
+  padding: 0 !important;
 }
 
 .pie-chart span {
   font-size: 1.2em;
   color: #5750E3;
   font-weight: 500;
+}
+
+.pie-chart svg {
+  display: block;
+  margin: auto;
+  width: 100% !important;
+  height: 100% !important;
+  box-sizing: border-box;
+  padding: 0 !important;
 }
 
 .pie-chart svg,
@@ -471,7 +483,6 @@ input[type="number"] {
   margin-top: 42px;
   width: 100%;
   gap: 0;
-  outline: none;
 }
 
 .fraction-pie-row .pie-chart {
@@ -503,4 +514,24 @@ input[type="number"] {
   margin: 0;
   padding: 0;
   outline: none;
+}
+
+.fade-in-step1 {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.7s cubic-bezier(0.4,0,0.2,1), transform 0.7s cubic-bezier(0.4,0,0.2,1);
+}
+.fade-in-step1-hidden {
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+.fade-in-step3 {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.7s cubic-bezier(0.4,0,0.2,1), transform 0.7s cubic-bezier(0.4,0,0.2,1);
+}
+.fade-in-step3-hidden {
+  opacity: 0;
+  transform: translateY(30px);
 } 

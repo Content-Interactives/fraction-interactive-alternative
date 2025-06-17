@@ -211,15 +211,13 @@ const FractionAddition = () => {
 
   const handleInputChange = (fractionKey, part, value) => {
     if (showSteps) return;
-    
     // Convert to number and validate
     let numValue = parseInt(value) || '';
-    
     // Ensure value is between 1 and 10
     if (numValue !== '') {
       numValue = Math.max(1, Math.min(10, numValue));
     }
-    
+    // Remove automatic correction of improper fractions - let user see the visual indicator
     setFractions(prev => ({
       ...prev,
       [fractionKey]: {
@@ -227,6 +225,16 @@ const FractionAddition = () => {
         [part]: numValue
       }
     }));
+  };
+
+  // Helper function to check if a fraction is proper
+  const isProperFraction = (numerator, denominator) => {
+    return numerator && denominator && parseInt(numerator) < parseInt(denominator);
+  };
+
+  // Helper function to check if a fraction is improper
+  const isImproperFraction = (numerator, denominator) => {
+    return numerator && denominator && parseInt(numerator) >= parseInt(denominator);
   };
 
   const resetAll = () => {
@@ -413,22 +421,26 @@ const FractionAddition = () => {
         return (
           <div className={`step-content fade-in-step2${step2Visible ? '' : ' fade-in-step2-hidden'}`}>
             <h3>Step 2: Rewrite with common denominator and adjust numerators</h3>
-            <div className="adjusted-fractions fraction-sum-row" style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              {/* Left multiplication factor */}
-              {showMultiplicationFactors && (
-                <span className="factor-animate-left" style={{ position: 'absolute', left: '-38px', top: '50%', transform: 'translateY(-50%)', color: '#E23B3B', fontWeight: 700, fontSize: '1.3em', userSelect: 'none', whiteSpace: 'nowrap' }}>
-                  {result.steps.commonDenominator / f1.denominator} ×
-                </span>
-              )}
-              <span><Fraction numerator={displayNumeratorEq1} denominator={animatedDenominator1 || f1.denominator} /></span>
+            <div className="adjusted-fractions fraction-sum-row" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '16px' }}>
+              {/* Left factor and fraction */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                {showMultiplicationFactors && (
+                  <span className="factor-animate-left" style={{ color: '#E23B3B', fontWeight: 700, fontSize: '1.3em', userSelect: 'none', whiteSpace: 'nowrap' }}>
+                    {result.steps.commonDenominator / f1.denominator} ×
+                  </span>
+                )}
+                <span><Fraction numerator={displayNumeratorEq1} denominator={animatedDenominator1 || f1.denominator} /></span>
+              </div>
               <span className="plus-centered">+</span>
-              <span><Fraction numerator={displayNumeratorEq2} denominator={animatedDenominator2 || f2.denominator} /></span>
-              {/* Right multiplication factor */}
-              {showMultiplicationFactors && (
-                <span className="factor-animate-right" style={{ position: 'absolute', right: '-32px', top: '50%', transform: 'translateY(-50%)', color: '#E23B3B', fontWeight: 700, fontSize: '1.3em', userSelect: 'none' }}>
-                  ×{result.steps.commonDenominator / f2.denominator}
-                </span>
-              )}
+              {/* Right fraction and factor */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <div><Fraction numerator={displayNumeratorEq2} denominator={animatedDenominator2 || f2.denominator} /></div>
+                {showMultiplicationFactors && (
+                  <span className="factor-animate-right" style={{ color: '#E23B3B', fontWeight: 700, fontSize: '1.3em', userSelect: 'none', marginTop: '40px' }}>
+                    ×{result.steps.commonDenominator / f2.denominator}
+                  </span>
+                )}
+              </div>
             </div>
             <div className={`pie-charts-container${pieMoveDown ? ' pie-move-down' : ''}`} style={{ justifyContent: 'center', marginTop: '20px', ...pieStepStyle }}>
               <div className="pie-charts-flex">
@@ -523,7 +535,7 @@ const FractionAddition = () => {
   };
 
   // Helper to render multiple pie charts for improper fractions
-  const renderImproperPieCharts = (numerator, denominator) => {
+  const renderImproperPieCharts = (numerator, denominator, hideImproper = false) => {
     if (numerator <= denominator) {
       // Proper fraction: just one pie chart
       return (
@@ -534,6 +546,30 @@ const FractionAddition = () => {
         </div>
       );
     }
+    
+    // If hideImproper is true, don't show pie charts for improper fractions
+    if (hideImproper) {
+      return (
+        <div className="pie-charts-flex">
+          <div className="pie-chart" style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center',
+            color: '#E23B3B',
+            fontSize: '0.9em',
+            fontWeight: 500,
+            border: '2px dashed #E23B3B',
+            borderRadius: '50%',
+            width: '150px',
+            height: '150px',
+            opacity: 0.7
+          }}>
+            No pie chart for improper fractions
+          </div>
+        </div>
+      );
+    }
+    
     // Improper: show one pie for each whole, and one for the remainder if any
     const pies = [];
     const whole = Math.floor(numerator / denominator);
@@ -568,7 +604,7 @@ const FractionAddition = () => {
         <h2 className="title">Fraction Addition</h2>
         {!showSteps ? (
           <>
-            <p className="instructions">Enter two fractions to see how to add them step by step</p>
+            <p className="instructions">Enter two proper fractions (numerator less than denominator) to see how to add them step by step</p>
             <div className="input-section">
               <div className="fraction-input-group">
                 <label className="fraction-label">First Fraction</label>
@@ -581,6 +617,7 @@ const FractionAddition = () => {
                       max="10"
                       value={fractions.fraction1.numerator}
                       onChange={(e) => handleInputChange('fraction1', 'numerator', e.target.value)}
+                      className={isImproperFraction(fractions.fraction1.numerator, fractions.fraction1.denominator) ? 'input-error' : ''}
                     />
                   </div>
                   <div className="fraction-line"></div>
@@ -592,6 +629,7 @@ const FractionAddition = () => {
                       max="10"
                       value={fractions.fraction1.denominator}
                       onChange={(e) => handleInputChange('fraction1', 'denominator', e.target.value)}
+                      className={isImproperFraction(fractions.fraction1.numerator, fractions.fraction1.denominator) ? 'input-error' : ''}
                     />
                   </div>
                 </div>
@@ -608,6 +646,7 @@ const FractionAddition = () => {
                       max="10"
                       value={fractions.fraction2.numerator}
                       onChange={(e) => handleInputChange('fraction2', 'numerator', e.target.value)}
+                      className={isImproperFraction(fractions.fraction2.numerator, fractions.fraction2.denominator) ? 'input-error' : ''}
                     />
                   </div>
                   <div className="fraction-line"></div>
@@ -619,31 +658,28 @@ const FractionAddition = () => {
                       max="10"
                       value={fractions.fraction2.denominator}
                       onChange={(e) => handleInputChange('fraction2', 'denominator', e.target.value)}
+                      className={isImproperFraction(fractions.fraction2.numerator, fractions.fraction2.denominator) ? 'input-error' : ''}
                     />
                   </div>
                 </div>
               </div>
             </div>
             <div className="fraction-pie-row">
-              {fractions.fraction1.numerator && fractions.fraction1.denominator && (
-                <div className="fraction-cell">
-                  <Fraction numerator={fractions.fraction1.numerator} denominator={fractions.fraction1.denominator} />
-                </div>
-              )}
-              {fractions.fraction1.numerator && fractions.fraction1.denominator && (
-                <div className="pie-chart">
-                  {renderPieChart(fractions.fraction1.numerator, fractions.fraction1.denominator)}
-                </div>
-              )}
-              {fractions.fraction2.numerator && fractions.fraction2.denominator && (
-                <div className="pie-chart">
-                  {renderPieChart(fractions.fraction2.numerator, fractions.fraction2.denominator)}
-                </div>
-              )}
-              {fractions.fraction2.numerator && fractions.fraction2.denominator && (
-                <div className="fraction-cell">
-                  <Fraction numerator={fractions.fraction2.numerator} denominator={fractions.fraction2.denominator} />
-                </div>
+              {isProperFraction(fractions.fraction1.numerator, fractions.fraction1.denominator) && isProperFraction(fractions.fraction2.numerator, fractions.fraction2.denominator) && (
+                <>
+                  <div className="fraction-cell">
+                    <Fraction numerator={fractions.fraction1.numerator} denominator={fractions.fraction1.denominator} />
+                  </div>
+                  <div className="pie-chart">
+                    {renderPieChart(fractions.fraction1.numerator, fractions.fraction1.denominator)}
+                  </div>
+                  <div className="pie-chart">
+                    {renderPieChart(fractions.fraction2.numerator, fractions.fraction2.denominator)}
+                  </div>
+                  <div className="fraction-cell">
+                    <Fraction numerator={fractions.fraction2.numerator} denominator={fractions.fraction2.denominator} />
+                  </div>
+                </>
               )}
             </div>
           </>
@@ -673,8 +709,16 @@ const FractionAddition = () => {
           Reset
         </button>
         <div style={{ flex: 1 }} />
-        {(fractions.fraction1.numerator && fractions.fraction1.denominator &&
-          fractions.fraction2.numerator && fractions.fraction2.denominator &&
+        {/* Only enable Continue if both fractions are proper */}
+        {(
+          fractions.fraction1.numerator &&
+          fractions.fraction1.denominator &&
+          fractions.fraction2.numerator &&
+          fractions.fraction2.denominator &&
+          parseInt(fractions.fraction1.denominator) > 1 &&
+          parseInt(fractions.fraction2.denominator) > 1 &&
+          isProperFraction(fractions.fraction1.numerator, fractions.fraction1.denominator) &&
+          isProperFraction(fractions.fraction2.numerator, fractions.fraction2.denominator) &&
           (!showSteps || (showSteps && !isComplete)) &&
           !isAnimatingDenominator &&
           !hideContinue &&

@@ -568,6 +568,30 @@ input[type="number"] {
 }
 
 @keyframes factorFadeInRight {
-  0% { opacity: 0; transform: translateX(16px) scale(0.8); }
-  100% { opacity: 1; transform: translateX(0) scale(1); }
+  0% { opacity: 0; transform: translateY(-50%) translateX(10px); }
+  100% { opacity: 1; transform: translateY(-50%) translateX(0); }
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.6; }
+  100% { opacity: 1; }
+}
+
+.input-error {
+  border: 2px solid #E23B3B !important;
+  box-shadow: 0 0 4px #E23B3B33;
+}
+
+.debug-outline * {
+  outline: 1px solid red !important;
+  position: relative;
+}
+.debug-outline *::after {
+  content: '';
+  pointer-events: none;
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  box-shadow: 0 0 0 4px rgba(0,0,255,0.2) inset, 0 0 0 8px rgba(0,255,0,0.2) inset;
+  z-index: 9999;
 } 

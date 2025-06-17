@@ -594,4 +594,22 @@ input[type="number"] {
   top: 0; left: 0; right: 0; bottom: 0;
   box-shadow: 0 0 0 4px rgba(0,0,255,0.2) inset, 0 0 0 8px rgba(0,255,0,0.2) inset;
   z-index: 9999;
+}
+
+.sum-fractions-fade.fade-in {
+  opacity: 1;
+  transition: opacity 0.5s;
+}
+.sum-fractions-fade.fade-out {
+  opacity: 0;
+  transition: opacity 0.5s;
+}
+
+.fade-in-out {
+  opacity: 1;
+  transition: opacity 0.4s;
+}
+.fade-in-out.hide {
+  opacity: 0;
+  transition: opacity 0.4s;
 } 

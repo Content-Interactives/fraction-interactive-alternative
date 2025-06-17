@@ -384,22 +384,26 @@ const FractionAddition = () => {
         let displayNumeratorEq1 = f1.numerator;
         let displayNumeratorEq2 = f2.numerator;
         if (showAdjustedNumerator1) {
-          if (step2ShadeNumerator1Float < result.steps.adjustedNumerator1) {
+          // Only start showing the adjusted numerator when shading animation has actually started
+          if (step2ShadeNumerator1Float >= 1) {
             displayNumeratorEq1 = Math.floor(step2ShadeNumerator1Float);
           } else {
-            displayNumeratorEq1 = result.steps.adjustedNumerator1;
+            // Keep showing original numerator until shading starts
+            displayNumeratorEq1 = f1.numerator;
           }
         }
         if (showAdjustedNumerator2) {
-          if (step2ShadeNumerator2Float < result.steps.adjustedNumerator2) {
+          // Only start showing the adjusted numerator when shading animation has actually started
+          if (step2ShadeNumerator2Float >= 1) {
             displayNumeratorEq2 = Math.floor(step2ShadeNumerator2Float);
           } else {
-            displayNumeratorEq2 = result.steps.adjustedNumerator2;
+            // Keep showing original numerator until shading starts
+            displayNumeratorEq2 = f2.numerator;
           }
         }
         return (
           <div className={`step-content fade-in-step2${step2Visible ? '' : ' fade-in-step2-hidden'}`}>
-            <h3>Step 2: Rewrite with common denominator</h3>
+            <h3>Step 2: Rewrite with common denominator and adjust numerators</h3>
             <div className="adjusted-fractions fraction-sum-row">
               <span><Fraction numerator={displayNumeratorEq1} denominator={animatedDenominator1 || f1.denominator} /></span>
               <span className="plus-centered">+</span>

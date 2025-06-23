@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { PieChart, Pie, Cell } from 'recharts';
 import './FractionAddition.css';
 import '../assets/orbit-glow-button/orbit-glow-button.css';
 
 // Helper component for algebraic fraction notation
-const Fraction = ({ numerator, denominator, size = '1.2em' }) => (
+const Fraction = ({ numerator, denominator, size = '1.2em', color = '#23205B', lineColor = '#5750E3' }) => (
   <span style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', fontSize: size, lineHeight: 1, verticalAlign: 'middle' }}>
-    <span style={{ display: 'block', fontWeight: 500, color: '#23205B' }}>{numerator}</span>
-    <span style={{ display: 'block', borderTop: '2px solid #5750E3', width: '100%', margin: '0 auto' }}></span>
-    <span style={{ display: 'block', fontWeight: 500, color: '#23205B' }}>{denominator}</span>
+    <span style={{ display: 'block', fontWeight: 500, color }}>{numerator}</span>
+    <span style={{ display: 'block', borderTop: `2px solid ${lineColor}`, width: '100%', margin: '0 auto' }}></span>
+    <span style={{ display: 'block', fontWeight: 500, color }}>{denominator}</span>
   </span>
 );
 
@@ -60,6 +60,15 @@ const FractionAddition = () => {
   const [showSumFraction, setShowSumFraction] = useState(false);
   const [isFadingOut, setIsFadingOut] = useState(false);
   const [showContinueButton, setShowContinueButton] = useState(true);
+  // Factor fade-in states for step 2
+  const [showBottomLeftFactor, setShowBottomLeftFactor] = useState(false);
+  const [showBottomRightFactor, setShowBottomRightFactor] = useState(false);
+  const [showTopLeftFactor, setShowTopLeftFactor] = useState(false);
+  const [showTopRightFactor, setShowTopRightFactor] = useState(false);
+  // Animation phase states for strict sequencing in step 2
+  const [step2Phase, setStep2Phase] = useState(0); // 0: not started, 1: bottom factors, 2: denominator anim, 3: top left, 4: left numerator, 5: top right, 6: right numerator
+  const [showLeftNumeratorFill, setShowLeftNumeratorFill] = useState(false);
+  const [showRightNumeratorFill, setShowRightNumeratorFill] = useState(false);
 
   useEffect(() => {
     // Trigger step animation when currentStep changes
@@ -94,61 +103,112 @@ const FractionAddition = () => {
     }
   }, [currentStep, showSteps, fractions.fraction1.denominator, fractions.fraction2.denominator]);
 
-  // Step 2: Animate in multiplication factors first, then the rest
+  // Reset all phase states on step change
   useEffect(() => {
     if (currentStep === 1 && showSteps && step2Visible) {
-      setShowMultiplicationFactors(false);
-      // Show multiplication factors first
-      const showFactorsTimeout = setTimeout(() => {
-        setShowMultiplicationFactors(true);
-      }, 100); // slight delay for fade-in
-      // After their animation, trigger the rest of the animation
-      const restTimeout = setTimeout(() => {
-        setIsAnimatingDenominator(true);
-        const startDen1 = parseInt(fractions.fraction1.denominator);
-        const startDen2 = parseInt(fractions.fraction2.denominator);
-        const startNum1 = parseInt(fractions.fraction1.numerator);
-        const startNum2 = parseInt(fractions.fraction2.numerator);
-        const targetDen = result.steps.commonDenominator;
-        const targetNum1 = result.steps.adjustedNumerator1;
-        const targetNum2 = result.steps.adjustedNumerator2;
-        let d1 = startDen1;
-        let d2 = startDen2;
-        let n1 = startNum1;
-        let n2 = startNum2;
-        const interval = 200;
-        const animate = () => {
-          let changed = false;
-          if (d1 < targetDen) { d1++; changed = true; }
-          if (d2 < targetDen) { d2++; changed = true; }
-          // Animate numerators proportionally
-          let newN1 = Math.round(startNum1 * d1 / startDen1);
-          let newN2 = Math.round(startNum2 * d2 / startDen2);
-          // When denominator reaches target, set to adjusted numerator
-          if (d1 === targetDen) newN1 = targetNum1;
-          if (d2 === targetDen) newN2 = targetNum2;
-          setAnimatedDenominator1(d1);
-          setAnimatedDenominator2(d2);
-          setAnimatedNumerator1(newN1);
-          setAnimatedNumerator2(newN2);
-          if (changed) {
-            setTimeout(animate, interval);
-          } else {
-            setIsAnimatingDenominator(false);
-            setHideContinue(false); // Show Continue button after animation
-          }
-        };
-        animate();
-      }, 700); // 0.6s for factor animation + 0.1s buffer
-      return () => {
-        clearTimeout(showFactorsTimeout);
-        clearTimeout(restTimeout);
-      };
-    }
-    if (currentStep !== 1) {
-      setShowMultiplicationFactors(false);
+      setStep2Phase(1); // Start with bottom factors
+      setShowBottomLeftFactor(false);
+      setShowBottomRightFactor(false);
+      setShowTopLeftFactor(false);
+      setShowTopRightFactor(false);
+      setShowLeftNumeratorFill(false);
+      setShowRightNumeratorFill(false);
+    } else {
+      setStep2Phase(0);
+      setShowBottomLeftFactor(false);
+      setShowBottomRightFactor(false);
+      setShowTopLeftFactor(false);
+      setShowTopRightFactor(false);
+      setShowLeftNumeratorFill(false);
+      setShowRightNumeratorFill(false);
     }
   }, [currentStep, showSteps, step2Visible]);
+
+  // Phase 1: bottom factors fade in
+  useEffect(() => {
+    if (step2Phase === 1) {
+      setShowBottomLeftFactor(true);
+      setShowBottomRightFactor(true);
+      const next = setTimeout(() => setStep2Phase(2), 1200); // match fade-in duration
+      return () => clearTimeout(next);
+    }
+  }, [step2Phase]);
+
+  // Phase 2: denominator animation
+  useEffect(() => {
+    if (step2Phase === 2) {
+      setIsAnimatingDenominator(true);
+      const startDen1 = parseInt(fractions.fraction1.denominator);
+      const startDen2 = parseInt(fractions.fraction2.denominator);
+      const startNum1 = parseInt(fractions.fraction1.numerator);
+      const startNum2 = parseInt(fractions.fraction2.numerator);
+      const targetDen = result.steps.commonDenominator;
+      const targetNum1 = result.steps.adjustedNumerator1;
+      const targetNum2 = result.steps.adjustedNumerator2;
+      let d1 = startDen1;
+      let d2 = startDen2;
+      let n1 = startNum1;
+      let n2 = startNum2;
+      const interval = 200;
+      const animate = () => {
+        let changed = false;
+        if (d1 < targetDen) { d1++; changed = true; }
+        if (d2 < targetDen) { d2++; changed = true; }
+        // Animate numerators proportionally
+        let newN1 = Math.round(startNum1 * d1 / startDen1);
+        let newN2 = Math.round(startNum2 * d2 / startDen2);
+        // When denominator reaches target, set to adjusted numerator
+        if (d1 === targetDen) newN1 = targetNum1;
+        if (d2 === targetDen) newN2 = targetNum2;
+        setAnimatedDenominator1(d1);
+        setAnimatedDenominator2(d2);
+        setAnimatedNumerator1(newN1);
+        setAnimatedNumerator2(newN2);
+        if (changed) {
+          setTimeout(animate, interval);
+        } else {
+          setIsAnimatingDenominator(false);
+          setStep2Phase(3); // Next phase: top left factor
+        }
+      };
+      setTimeout(animate, 500); // 0.5s delay before denominator animation
+    }
+  }, [step2Phase]);
+
+  // Phase 3: top left factor fade in
+  useEffect(() => {
+    if (step2Phase === 3) {
+      setShowTopLeftFactor(true);
+      const next = setTimeout(() => setStep2Phase(4), 1200); // match fade-in duration
+      return () => clearTimeout(next);
+    }
+  }, [step2Phase]);
+
+  // Phase 4: left numerator fill
+  useEffect(() => {
+    if (step2Phase === 4) {
+      setShowLeftNumeratorFill(true);
+      // Wait for numerator fill animation to finish (duration: 1200ms)
+      const next = setTimeout(() => setStep2Phase(5), 1200);
+      return () => clearTimeout(next);
+    }
+  }, [step2Phase]);
+
+  // Phase 5: top right factor fade in
+  useEffect(() => {
+    if (step2Phase === 5) {
+      setShowTopRightFactor(true);
+      const next = setTimeout(() => setStep2Phase(6), 1200); // match fade-in duration
+      return () => clearTimeout(next);
+    }
+  }, [step2Phase]);
+
+  // Phase 6: right numerator fill
+  useEffect(() => {
+    if (step2Phase === 6) {
+      setShowRightNumeratorFill(true);
+    }
+  }, [step2Phase]);
 
   // Fade in Step 3 and animate numerators
   useEffect(() => {
@@ -400,9 +460,9 @@ const FractionAddition = () => {
           <div className={`step-content fade-in-step1${step1Visible ? '' : ' fade-in-step1-hidden'}`}>
             <h3>Step 1: Find a common denominator</h3>
             <div className="fraction-sum-row" style={{ marginTop: 16 }}>
-              <Fraction numerator={f1.numerator} denominator={f1.denominator} size="1.5em" />
+              <Fraction numerator={f1.numerator} denominator={f1.denominator} size="1.5em" color="black" lineColor="black" />
               <span className="plus-centered">+</span>
-              <Fraction numerator={f2.numerator} denominator={f2.denominator} size="1.5em" />
+              <Fraction numerator={f2.numerator} denominator={f2.denominator} size="1.5em" color="black" lineColor="black" />
             </div>
             <div style={{ height: '28px', marginTop: '0px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               {showLCMText && showCommonDenominator && result && (
@@ -454,29 +514,45 @@ const FractionAddition = () => {
         const factor2 = result.steps.commonDenominator / f2.denominator;
 
         return (
-          <div className={`step-content fade-in-step2${step2Visible ? '' : ' fade-in-step2-hidden'}`}>
-            <h3>Step 2: Rewrite with common denominator and adjust numerators</h3>
-            <div className="adjusted-fractions fraction-sum-row" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '16px' }}>
+          <div className={`step-content fade-in-step2${step2Visible ? '' : ' fade-in-step2-hidden'}`} style={{ color: 'black' }}>
+            <h3 style={{ color: 'black' }}>Step 2: Rewrite with common denominator and adjust numerators</h3>
+            <div className="adjusted-fractions fraction-sum-row" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '16px', color: 'black' }}>
               {/* Left fraction with factors on the left */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                {showMultiplicationFactors && (
-                  <span className="factor-animate-left" style={{ color: '#E23B3B', fontWeight: 700, fontSize: '1.3em', userSelect: 'none', whiteSpace: 'nowrap', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', justifyContent: 'center', lineHeight: '1.2' }}>
-                    <span>{factor1} ×</span>
-                    <span style={{borderTop: '2px solid transparent', padding: '0.1em 0'}}></span>
-                    <span>{factor1} ×</span>
-                  </span>
-                )}
-                <Fraction numerator={displayNumeratorEq1} denominator={animatedDenominator1 || f1.denominator} />
+                <span style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', justifyContent: 'space-between', lineHeight: '1.2', minHeight: '2.5em' }}>
+                  {/* Top left factor */}
+                  {showTopLeftFactor ? (
+                    <span className="fade-in-factor factor-animate-left" style={{ color: '#4E48CC', fontWeight: 700, fontSize: '1.5em', userSelect: 'none', whiteSpace: 'nowrap' }}>{factor1} ×</span>
+                  ) : (
+                    <span style={{ visibility: 'hidden', fontSize: '1.5em', color: '#4E48CC' }}>{factor1} ×</span>
+                  )}
+                  {/* Bottom left factor */}
+                  {showBottomLeftFactor ? (
+                    <span className="fade-in-factor factor-animate-left" style={{ color: '#4E48CC', fontWeight: 700, fontSize: '1.5em', userSelect: 'none', whiteSpace: 'nowrap' }}>{factor1} ×</span>
+                  ) : (
+                    <span style={{ visibility: 'hidden', fontSize: '1.5em', color: '#4E48CC' }}>{factor1} ×</span>
+                  )}
+                </span>
+                <Fraction numerator={displayNumeratorEq1} denominator={animatedDenominator1 || f1.denominator} size="1.5em" color="black" lineColor="black" />
               </div>
-              <span className="plus-centered">+</span>
-              {/* Right fraction with factors on the right */}
+              <span className="plus-centered" style={{ color: 'black' }}>+</span>
+              {/* Right fraction and factors in a row, factors aligned with numerator and denominator, mirroring the left */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Fraction numerator={displayNumeratorEq2} denominator={animatedDenominator2 || f2.denominator} />
-                {showMultiplicationFactors && (
-                  <span className="factor-animate-left" style={{ color: '#E23B3B', fontWeight: 700, fontSize: '1.3em', userSelect: 'none', whiteSpace: 'nowrap', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', justifyContent: 'center', lineHeight: '1.2' }}>                    <span>&times; {factor2}</span>
-                    <span>&times; {factor2}</span>
-                  </span>
-                )}
+                <Fraction numerator={displayNumeratorEq2} denominator={animatedDenominator2 || f2.denominator} size="1.5em" color="black" lineColor="black" />
+                <span style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'space-between', lineHeight: '1.2', minHeight: '2.5em' }}>
+                  {/* Top right factor */}
+                  {showTopRightFactor ? (
+                    <span className="fade-in-factor factor-animate-right" style={{ color: '#4E48CC', fontWeight: 700, fontSize: '1.5em', outline: '1px solid blue !important', userSelect: 'none', whiteSpace: 'nowrap' }}>&times; {factor2}</span>
+                  ) : (
+                    <span style={{ visibility: 'hidden', fontSize: '1.5em', color: '#4E48CC' }}>&times; {factor2}</span>
+                  )}
+                  {/* Bottom right factor */}
+                  {showBottomRightFactor ? (
+                    <span className="fade-in-factor factor-animate-right" style={{ color: '#4E48CC', fontWeight: 700, fontSize: '1.5em', outline: '1px solid blue !important', userSelect: 'none', whiteSpace: 'nowrap' }}>&times; {factor2}</span>
+                  ) : (
+                    <span style={{ visibility: 'hidden', fontSize: '1.5em', color: '#4E48CC' }}>&times; {factor2}</span>
+                  )}
+                </span>
               </div>
             </div>
             <div className={`pie-charts-container${pieMoveDown ? ' pie-move-down' : ''}`} style={{ justifyContent: 'center', marginTop: '-25px', ...pieStepStyle }}>
@@ -508,13 +584,13 @@ const FractionAddition = () => {
             <div style={{ minHeight: 60 }}>
               {!showSumFraction ? (
                 <div className={`sum-fractions-fade${isFadingOut ? ' fade-out' : ' fade-in'}`} style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                  <Fraction numerator={result.steps.adjustedNumerator1} denominator={result.steps.commonDenominator} size="1.5em" />
+                  <Fraction numerator={result.steps.adjustedNumerator1} denominator={result.steps.commonDenominator} size="1.5em" color="black" lineColor="black" />
                   <span className="plus-centered">+</span>
-                  <Fraction numerator={result.steps.adjustedNumerator2} denominator={result.steps.commonDenominator} size="1.5em" />
+                  <Fraction numerator={result.steps.adjustedNumerator2} denominator={result.steps.commonDenominator} size="1.5em" color="black" lineColor="black" />
                 </div>
               ) : (
                 <div className="sum-fraction sum-fractions-fade fade-in" style={{}}>
-                  <Fraction numerator={result.steps.sumNumerator} denominator={result.steps.commonDenominator} size="1.5em" />
+                  <Fraction numerator={result.steps.sumNumerator} denominator={result.steps.commonDenominator} size="1.5em" color="black" lineColor="black" />
                 </div>
               )}
             </div>
@@ -757,7 +833,7 @@ const FractionAddition = () => {
                 {isProperFraction(fractions.fraction1.numerator, fractions.fraction1.denominator) && isProperFraction(fractions.fraction2.numerator, fractions.fraction2.denominator) && (
                   <>
                     <div className="fraction-cell">
-                      <Fraction numerator={fractions.fraction1.numerator} denominator={fractions.fraction1.denominator} />
+                      <Fraction numerator={fractions.fraction1.numerator} denominator={fractions.fraction1.denominator} color="black" lineColor="black" />
                     </div>
                     <div className="pie-chart">
                       {renderPieChart(fractions.fraction1.numerator, fractions.fraction1.denominator)}
@@ -766,7 +842,7 @@ const FractionAddition = () => {
                       {renderPieChart(fractions.fraction2.numerator, fractions.fraction2.denominator)}
                     </div>
                     <div className="fraction-cell">
-                      <Fraction numerator={fractions.fraction2.numerator} denominator={fractions.fraction2.denominator} />
+                      <Fraction numerator={fractions.fraction2.numerator} denominator={fractions.fraction2.denominator} color="black" lineColor="black" />
                     </div>
                   </>
                 )}

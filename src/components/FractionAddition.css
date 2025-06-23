@@ -583,19 +583,6 @@ input[type="number"] {
   box-shadow: 0 0 4px #E23B3B33;
 }
 
-.debug-outline * {
-  outline: 1px solid red !important;
-  position: relative;
-}
-.debug-outline *::after {
-  content: '';
-  pointer-events: none;
-  position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  box-shadow: 0 0 0 4px rgba(0,0,255,0.2) inset, 0 0 0 8px rgba(0,255,0,0.2) inset;
-  z-index: 9999;
-}
-
 .sum-fractions-fade.fade-in {
   opacity: 1;
   transition: opacity 0.5s;
@@ -615,17 +602,20 @@ input[type="number"] {
 }
 
 /* Add a red outline for all elements with a border or margin for testing */
-.fraction-addition-root *[style*="border"],
-.fraction-addition-root *[style*="margin"] {
-  outline: 2px solid red !important;
-}
-
-/* Outline all elements in the interactive for debugging */
-.fraction-addition-root * {
-  outline: 2px solid red !important;
-}
+/* Remove the red outline for all elements in the interactive */
 
 /* Make the outline for the second factor blue */
-.fraction-addition-root .factor-animate-right {
-  outline: 2px solid blue !important;
+/* Removed debug outline rules for border, margin, and .factor-animate-right */
+
+/* Removed debug outline rules for border, margin, and .factor-animate-right */
+
+.fade-in-factor {
+  opacity: 0;
+  animation: fadeInFactor 1.2s forwards;
+}
+
+@keyframes fadeInFactor {
+  to {
+    opacity: 1;
+  }
 } 

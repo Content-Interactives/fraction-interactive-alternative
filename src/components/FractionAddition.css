@@ -618,4 +618,14 @@ input[type="number"] {
   to {
     opacity: 1;
   }
+}
+
+.fade-in-continue {
+  opacity: 0;
+  animation: fadeInContinue 0.7s 0.1s forwards;
+}
+
+@keyframes fadeInContinue {
+  from { opacity: 0; }
+  to { opacity: 1; }
 } 

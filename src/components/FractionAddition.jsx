@@ -105,7 +105,9 @@ const FractionAddition = () => {
 
   // Reset all phase states on step change
   useEffect(() => {
+    console.log('Step change effect triggered:', { currentStep, showSteps, step2Visible });
     if (currentStep === 1 && showSteps && step2Visible) {
+      console.log('Step 2 starting - resetting phase states');
       setStep2Phase(1); // Start with bottom factors
       setShowBottomLeftFactor(false);
       setShowBottomRightFactor(false);
@@ -127,9 +129,13 @@ const FractionAddition = () => {
   // Phase 1: bottom factors fade in
   useEffect(() => {
     if (step2Phase === 1) {
+      console.log('Step 2 Phase 1: Bottom factors fade in START');
       setShowBottomLeftFactor(true);
       setShowBottomRightFactor(true);
-      const next = setTimeout(() => setStep2Phase(2), 1200); // match fade-in duration
+      const next = setTimeout(() => {
+        console.log('Step 2 Phase 1: Bottom factors fade in END');
+        setStep2Phase(2);
+      }, 1200); // match fade-in duration
       return () => clearTimeout(next);
     }
   }, [step2Phase]);
@@ -137,6 +143,7 @@ const FractionAddition = () => {
   // Phase 2: denominator animation
   useEffect(() => {
     if (step2Phase === 2) {
+      console.log('Step 2 Phase 2: Denominator animation START');
       setIsAnimatingDenominator(true);
       const startDen1 = parseInt(fractions.fraction1.denominator);
       const startDen2 = parseInt(fractions.fraction2.denominator);
@@ -168,6 +175,7 @@ const FractionAddition = () => {
           setTimeout(animate, interval);
         } else {
           setIsAnimatingDenominator(false);
+          console.log('Step 2 Phase 2: Denominator animation END');
           setStep2Phase(3); // Next phase: top left factor
         }
       };
@@ -178,8 +186,12 @@ const FractionAddition = () => {
   // Phase 3: top left factor fade in
   useEffect(() => {
     if (step2Phase === 3) {
+      console.log('Step 2 Phase 3: Top left factor fade in START');
       setShowTopLeftFactor(true);
-      const next = setTimeout(() => setStep2Phase(4), 1200); // match fade-in duration
+      const next = setTimeout(() => {
+        console.log('Step 2 Phase 3: Top left factor fade in END');
+        setStep2Phase(4);
+      }, 1200); // match fade-in duration
       return () => clearTimeout(next);
     }
   }, [step2Phase]);
@@ -187,20 +199,39 @@ const FractionAddition = () => {
   // Phase 4: left numerator fill
   useEffect(() => {
     if (step2Phase === 4) {
+      console.log('Step 2 Phase 4: Left numerator fill START');
       setShowLeftNumeratorFill(true);
-      // Wait for numerator fill animation to finish (duration: 1200ms)
-      const next = setTimeout(() => setStep2Phase(5), 1200);
-      return () => clearTimeout(next);
+      // Animate left numerator fill
+      setStep2ShadeNumerator1Float(0);
+      const targetNum1 = result.steps.adjustedNumerator1;
+      const duration = 1200;
+      let start = null;
+      function animate(ts) {
+        if (!start) start = ts;
+        const elapsed = ts - start;
+        const progress = Math.min(elapsed / duration, 1);
+        setStep2ShadeNumerator1Float(progress * targetNum1);
+        if (progress < 1) {
+          requestAnimationFrame(animate);
+        } else {
+          setStep2ShadeNumerator1Float(targetNum1);
+          console.log('Step 2 Phase 4: Left numerator fill END');
+          setStep2Phase(5);
+        }
+      }
+      requestAnimationFrame(animate);
     }
-  }, [step2Phase]);
+  }, [step2Phase, result]);
 
   // Phase 5: top right factor fade in
   useEffect(() => {
     if (step2Phase === 5) {
+      console.log('Step 2 Phase 5: Top right factor fade in START');
       setShowRightNumeratorFill(false); // Ensure hidden before fade-in
       setShowTopRightFactor(true);
       // After fade-in, wait 300ms, then advance to phase 6
       const next = setTimeout(() => {
+        console.log('Step 2 Phase 5: Top right factor fade in END');
         setTimeout(() => setStep2Phase(6), 300); // 300ms delay after fade-in
       }, 1200); // match fade-in duration
       return () => clearTimeout(next);
@@ -210,13 +241,16 @@ const FractionAddition = () => {
   // Phase 6: right numerator fill
   useEffect(() => {
     if (step2Phase === 6) {
+      console.log('Step 2 Phase 6: Right numerator fill START');
       setShowRightNumeratorFill(true);
     }
   }, [step2Phase]);
 
   // Phase 6: right numerator fill animation
   useEffect(() => {
+    console.log('Right fill effect check:', { step2Phase, showRightNumeratorFill, adjustedNumerator2: result?.steps?.adjustedNumerator2 });
     if (step2Phase === 6 && showRightNumeratorFill) {
+      console.log('Step 2 Phase 6: Right numerator fill animation START');
       setStep2ShadeNumerator2Float(0);
       const targetNum2 = result.steps.adjustedNumerator2;
       const duration = 1200;
@@ -228,6 +262,11 @@ const FractionAddition = () => {
         setStep2ShadeNumerator2Float(progress * targetNum2);
         if (progress < 1) {
           requestAnimationFrame(animate);
+        } else {
+          setStep2ShadeNumerator2Float(targetNum2);
+          console.log('Step 2 Phase 6: Right numerator fill animation END');
+          setStep2NumeratorAnimationDone(true);
+          setHideContinue(false); // Show continue button after animation
         }
       }
       requestAnimationFrame(animate);
@@ -246,6 +285,9 @@ const FractionAddition = () => {
   }, [currentStep, showSteps]);
 
   // Smoothly animate numerator shading after denominator animation completes
+  // DISABLED: This legacy system conflicts with the phased animation system
+  // The phased system now handles all step 2 animations properly
+  /*
   useEffect(() => {
     if (
       currentStep === 1 &&
@@ -284,6 +326,7 @@ const FractionAddition = () => {
       setStep2NumeratorAnimationDone(false);
     }
   }, [currentStep, showSteps, animatedDenominator1, animatedDenominator2, result]);
+  */
 
   useEffect(() => {
     if (currentStep === 2 && showSteps) {
@@ -300,14 +343,24 @@ const FractionAddition = () => {
 
   useEffect(() => {
     // Hide Continue button during step transitions or animations
+    console.log('Continue button logic:', { 
+      isAnimatingDenominator, 
+      hideContinue, 
+      currentStep, 
+      step2NumeratorAnimationDone, 
+      showSteps, 
+      showLCMText 
+    });
     if (
       isAnimatingDenominator ||
       hideContinue ||
       (currentStep === 1 && !step2NumeratorAnimationDone) ||
       (showSteps && currentStep === 0 && !showLCMText)
     ) {
+      console.log('Hiding continue button');
       setShowContinueButton(false);
     } else {
+      console.log('Showing continue button');
       setShowContinueButton(true);
     }
   }, [isAnimatingDenominator, hideContinue, step2NumeratorAnimationDone, showSteps, currentStep, showLCMText]);
@@ -602,6 +655,18 @@ const FractionAddition = () => {
                 </div>
               </div>
             </div>
+            {/* Fade-in Continue button after last animation in step 2 */}
+            {currentStep === 1 && step2NumeratorAnimationDone && (
+              <div style={{ display: 'flex', justifyContent: 'center', marginTop: 24 }}>
+                <button
+                  className="glow-button simple-glow fade-in-continue"
+                  onClick={handleNextStep}
+                  style={{ minWidth: 120, fontSize: '1.1em' }}
+                >
+                  Continue
+                </button>
+              </div>
+            )}
           </div>
         );
       case 2:

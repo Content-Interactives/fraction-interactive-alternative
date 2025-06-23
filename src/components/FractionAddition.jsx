@@ -197,8 +197,12 @@ const FractionAddition = () => {
   // Phase 5: top right factor fade in
   useEffect(() => {
     if (step2Phase === 5) {
+      setShowRightNumeratorFill(false); // Ensure hidden before fade-in
       setShowTopRightFactor(true);
-      const next = setTimeout(() => setStep2Phase(6), 1200); // match fade-in duration
+      // After fade-in, wait 300ms, then advance to phase 6
+      const next = setTimeout(() => {
+        setTimeout(() => setStep2Phase(6), 300); // 300ms delay after fade-in
+      }, 1200); // match fade-in duration
       return () => clearTimeout(next);
     }
   }, [step2Phase]);
@@ -209,6 +213,28 @@ const FractionAddition = () => {
       setShowRightNumeratorFill(true);
     }
   }, [step2Phase]);
+
+  // Phase 6: right numerator fill animation
+  useEffect(() => {
+    if (step2Phase === 6 && showRightNumeratorFill) {
+      setStep2ShadeNumerator2Float(0);
+      const targetNum2 = result.steps.adjustedNumerator2;
+      const duration = 1200;
+      let start = null;
+      function animate(ts) {
+        if (!start) start = ts;
+        const elapsed = ts - start;
+        const progress = Math.min(elapsed / duration, 1);
+        setStep2ShadeNumerator2Float(progress * targetNum2);
+        if (progress < 1) {
+          requestAnimationFrame(animate);
+        }
+      }
+      requestAnimationFrame(animate);
+    } else if (step2Phase !== 6) {
+      setStep2ShadeNumerator2Float(0);
+    }
+  }, [step2Phase, showRightNumeratorFill, result]);
 
   // Fade in Step 3 and animate numerators
   useEffect(() => {
@@ -231,10 +257,9 @@ const FractionAddition = () => {
       setStep2ShadeNumerator2Float(0);
       setStep2NumeratorAnimationDone(false);
       const targetNum1 = result.steps.adjustedNumerator1;
-      const targetNum2 = result.steps.adjustedNumerator2;
       const duration = 1200; // ms for each fill
       const delay = setTimeout(() => {
-        // Animate first numerator
+        // Animate first numerator only
         let start = null;
         function animateFirst(ts) {
           if (!start) start = ts;
@@ -244,20 +269,8 @@ const FractionAddition = () => {
           if (progress < 1) {
             requestAnimationFrame(animateFirst);
           } else {
-            // Animate second numerator after first is done
-            let start2 = null;
-            function animateSecond(ts2) {
-              if (!start2) start2 = ts2;
-              const elapsed2 = ts2 - start2;
-              const progress2 = Math.min(elapsed2 / duration, 1);
-              setStep2ShadeNumerator2Float(progress2 * targetNum2);
-              if (progress2 < 1) {
-                requestAnimationFrame(animateSecond);
-              } else {
-                setStep2NumeratorAnimationDone(true);
-              }
-            }
-            requestAnimationFrame(animateSecond);
+            // Don't animate second numerator here - it's handled by the phased system
+            setStep2NumeratorAnimationDone(true);
           }
         }
         requestAnimationFrame(animateFirst);
@@ -353,6 +366,20 @@ const FractionAddition = () => {
     setShowCommonDenominator(false);
     setPieMoveDown(false);
     setShowLCMText(false);
+    setShowMultiplicationFactors(false);
+    setShowSumFraction(false);
+    setIsFadingOut(false);
+    setShowContinueButton(true);
+    // Reset factor fade-in states for step 2
+    setShowBottomLeftFactor(false);
+    setShowBottomRightFactor(false);
+    setShowTopLeftFactor(false);
+    setShowTopRightFactor(false);
+    // Reset animation phase states for strict sequencing in step 2
+    setStep2Phase(0);
+    setShowLeftNumeratorFill(false);
+    setShowRightNumeratorFill(false);
+    setIsAnimatingDenominator(false);
   };
 
   const startSteps = () => {
@@ -538,7 +565,7 @@ const FractionAddition = () => {
               <span className="plus-centered" style={{ color: 'black' }}>+</span>
               {/* Right fraction and factors in a row, factors aligned with numerator and denominator, mirroring the left */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Fraction numerator={displayNumeratorEq2} denominator={animatedDenominator2 || f2.denominator} size="1.5em" color="black" lineColor="black" />
+                <Fraction numerator={step2Phase === 6 && showRightNumeratorFill && step2ShadeNumerator2Float >= parseInt(fractions.fraction2.numerator) ? Math.floor(step2ShadeNumerator2Float) : displayNumeratorEq2} denominator={animatedDenominator2 || f2.denominator} size="1.5em" color="black" lineColor="black" />
                 <span style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'space-between', lineHeight: '1.2', minHeight: '2.5em' }}>
                   {/* Top right factor */}
                   {showTopRightFactor ? (
@@ -567,10 +594,10 @@ const FractionAddition = () => {
                 </div>
                 <div className="pie-chart">
                   {renderPieChart(
-                    showAdjustedNumerator2 ? step2ShadeNumerator2Float : 0,
+                    step2Phase === 6 && showRightNumeratorFill ? step2ShadeNumerator2Float : 0,
                     animatedDenominator2 || result.steps.commonDenominator,
                     null,
-                    showAdjustedNumerator2
+                    step2Phase === 6 && showRightNumeratorFill
                   )}
                 </div>
               </div>
@@ -913,4 +940,4 @@ const FractionAddition = () => {
   );
 };
 
-export default FractionAddition; 
+export default FractionAddition;

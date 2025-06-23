@@ -612,4 +612,20 @@ input[type="number"] {
 .fade-in-out.hide {
   opacity: 0;
   transition: opacity 0.4s;
+}
+
+/* Add a red outline for all elements with a border or margin for testing */
+.fraction-addition-root *[style*="border"],
+.fraction-addition-root *[style*="margin"] {
+  outline: 2px solid red !important;
+}
+
+/* Outline all elements in the interactive for debugging */
+.fraction-addition-root * {
+  outline: 2px solid red !important;
+}
+
+/* Make the outline for the second factor blue */
+.fraction-addition-root .factor-animate-right {
+  outline: 2px solid blue !important;
 } 

@@ -448,27 +448,33 @@ const FractionAddition = () => {
             displayNumeratorEq2 = f2.numerator;
           }
         }
+        
+        // Calculate the factors
+        const factor1 = result.steps.commonDenominator / f1.denominator;
+        const factor2 = result.steps.commonDenominator / f2.denominator;
+
         return (
           <div className={`step-content fade-in-step2${step2Visible ? '' : ' fade-in-step2-hidden'}`}>
             <h3>Step 2: Rewrite with common denominator and adjust numerators</h3>
             <div className="adjusted-fractions fraction-sum-row" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '16px' }}>
-              {/* Left factor and fraction */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+              {/* Left fraction with factors on the left */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 {showMultiplicationFactors && (
-                  <span className="factor-animate-left" style={{ color: '#E23B3B', fontWeight: 700, fontSize: '1.3em', userSelect: 'none', whiteSpace: 'nowrap' }}>
-                    {result.steps.commonDenominator / f1.denominator} ×
+                  <span className="factor-animate-left" style={{ color: '#E23B3B', fontWeight: 700, fontSize: '1.3em', userSelect: 'none', whiteSpace: 'nowrap', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', justifyContent: 'center', lineHeight: '1.2' }}>
+                    <span>{factor1} ×</span>
+                    <span style={{borderTop: '2px solid transparent', padding: '0.1em 0'}}></span>
+                    <span>{factor1} ×</span>
                   </span>
                 )}
-                
-                <span><Fraction numerator={displayNumeratorEq1} denominator={animatedDenominator1 || f1.denominator} /></span>
+                <Fraction numerator={displayNumeratorEq1} denominator={animatedDenominator1 || f1.denominator} />
               </div>
               <span className="plus-centered">+</span>
-              {/* Right fraction and factor */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <div><Fraction numerator={displayNumeratorEq2} denominator={animatedDenominator2 || f2.denominator} /></div>
+              {/* Right fraction with factors on the right */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Fraction numerator={displayNumeratorEq2} denominator={animatedDenominator2 || f2.denominator} />
                 {showMultiplicationFactors && (
-                  <span className="factor-animate-right" style={{ color: '#E23B3B', fontWeight: 700, fontSize: '1.3em', userSelect: 'none', marginTop: '40px' }}>
-                    ×{result.steps.commonDenominator / f2.denominator}
+                  <span className="factor-animate-left" style={{ color: '#E23B3B', fontWeight: 700, fontSize: '1.3em', userSelect: 'none', whiteSpace: 'nowrap', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', justifyContent: 'center', lineHeight: '1.2' }}>                    <span>&times; {factor2}</span>
+                    <span>&times; {factor2}</span>
                   </span>
                 )}
               </div>
@@ -655,7 +661,7 @@ const FractionAddition = () => {
   }, [currentStep]);
 
   return (
-    <div style={{
+    <div className="fraction-addition-root" style={{
       maxWidth: 500,
       margin: '32px auto 0 auto',
       background: '#fff',

@@ -69,6 +69,7 @@ const FractionAddition = () => {
   const [step2Phase, setStep2Phase] = useState(0); // 0: not started, 1: bottom factors, 2: denominator anim, 3: top left, 4: left numerator, 5: top right, 6: right numerator
   const [showLeftNumeratorFill, setShowLeftNumeratorFill] = useState(false);
   const [showRightNumeratorFill, setShowRightNumeratorFill] = useState(false);
+  const [factorsVisible, setFactorsVisible] = useState(true);
 
   useEffect(() => {
     // Trigger step animation when currentStep changes
@@ -365,6 +366,15 @@ const FractionAddition = () => {
     }
   }, [isAnimatingDenominator, hideContinue, step2NumeratorAnimationDone, showSteps, currentStep, showLCMText]);
 
+  useEffect(() => {
+    if (step2NumeratorAnimationDone) {
+      const timeout = setTimeout(() => setFactorsVisible(false), 500);
+      return () => clearTimeout(timeout);
+    } else {
+      setFactorsVisible(true);
+    }
+  }, [step2NumeratorAnimationDone]);
+
   const handleInputChange = (fractionKey, part, value) => {
     if (showSteps) return;
     // Convert to number and validate
@@ -601,17 +611,43 @@ const FractionAddition = () => {
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <span style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', justifyContent: 'space-between', lineHeight: '1.2', minHeight: '2.5em' }}>
                   {/* Top left factor */}
-                  {showTopLeftFactor ? (
-                    <span className="fade-in-factor factor-animate-left" style={{ color: '#4E48CC', fontWeight: 700, fontSize: '1.5em', userSelect: 'none', whiteSpace: 'nowrap' }}>{factor1} ×</span>
-                  ) : (
-                    <span style={{ visibility: 'hidden', fontSize: '1.5em', color: '#4E48CC' }}>{factor1} ×</span>
-                  )}
+                  <span
+                    className={`fade-in-factor${showTopLeftFactor && factorsVisible ? ' visible' : ''}`}
+                    style={{
+                      color: '#4E48CC',
+                      fontWeight: 700,
+                      fontSize: '1.5em',
+                      userSelect: 'none',
+                      whiteSpace: 'nowrap',
+                      minWidth: '2.5em',
+                      display: 'inline-block',
+                    }}
+                  >
+                    {showTopLeftFactor && (
+                      <span className={step2NumeratorAnimationDone ? 'fade-out-factor' : ''}>
+                        {factor1} ×
+                      </span>
+                    )}
+                  </span>
                   {/* Bottom left factor */}
-                  {showBottomLeftFactor ? (
-                    <span className="fade-in-factor factor-animate-left" style={{ color: '#4E48CC', fontWeight: 700, fontSize: '1.5em', userSelect: 'none', whiteSpace: 'nowrap' }}>{factor1} ×</span>
-                  ) : (
-                    <span style={{ visibility: 'hidden', fontSize: '1.5em', color: '#4E48CC' }}>{factor1} ×</span>
-                  )}
+                  <span
+                    className={`fade-in-factor${showBottomLeftFactor && factorsVisible ? ' visible' : ''}`}
+                    style={{
+                      color: '#4E48CC',
+                      fontWeight: 700,
+                      fontSize: '1.5em',
+                      userSelect: 'none',
+                      whiteSpace: 'nowrap',
+                      minWidth: '2.5em',
+                      display: 'inline-block',
+                    }}
+                  >
+                    {showBottomLeftFactor && (
+                      <span className={step2NumeratorAnimationDone ? 'fade-out-factor' : ''}>
+                        {factor1} ×
+                      </span>
+                    )}
+                  </span>
                 </span>
                 <Fraction numerator={displayNumeratorEq1} denominator={animatedDenominator1 || f1.denominator} size="1.5em" color="black" lineColor="black" />
               </div>
@@ -621,17 +657,45 @@ const FractionAddition = () => {
                 <Fraction numerator={step2Phase === 6 && showRightNumeratorFill && step2ShadeNumerator2Float >= parseInt(fractions.fraction2.numerator) ? Math.floor(step2ShadeNumerator2Float) : displayNumeratorEq2} denominator={animatedDenominator2 || f2.denominator} size="1.5em" color="black" lineColor="black" />
                 <span style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'space-between', lineHeight: '1.2', minHeight: '2.5em' }}>
                   {/* Top right factor */}
-                  {showTopRightFactor ? (
-                    <span className="fade-in-factor factor-animate-right" style={{ color: '#4E48CC', fontWeight: 700, fontSize: '1.5em', outline: '1px solid blue !important', userSelect: 'none', whiteSpace: 'nowrap' }}>&times; {factor2}</span>
-                  ) : (
-                    <span style={{ visibility: 'hidden', fontSize: '1.5em', color: '#4E48CC' }}>&times; {factor2}</span>
-                  )}
+                  <span
+                    className={`fade-in-factor${showTopRightFactor && factorsVisible ? ' visible' : ''}`}
+                    style={{
+                      color: '#4E48CC',
+                      fontWeight: 700,
+                      fontSize: '1.5em',
+                      outline: '1px solid blue !important',
+                      userSelect: 'none',
+                      whiteSpace: 'nowrap',
+                      minWidth: '2.5em',
+                      display: 'inline-block',
+                    }}
+                  >
+                    {showTopRightFactor && (
+                      <span className={step2NumeratorAnimationDone ? 'fade-out-factor' : ''}>
+                        × {factor2}
+                      </span>
+                    )}
+                  </span>
                   {/* Bottom right factor */}
-                  {showBottomRightFactor ? (
-                    <span className="fade-in-factor factor-animate-right" style={{ color: '#4E48CC', fontWeight: 700, fontSize: '1.5em', outline: '1px solid blue !important', userSelect: 'none', whiteSpace: 'nowrap' }}>&times; {factor2}</span>
-                  ) : (
-                    <span style={{ visibility: 'hidden', fontSize: '1.5em', color: '#4E48CC' }}>&times; {factor2}</span>
-                  )}
+                  <span
+                    className={`fade-in-factor${showBottomRightFactor && factorsVisible ? ' visible' : ''}`}
+                    style={{
+                      color: '#4E48CC',
+                      fontWeight: 700,
+                      fontSize: '1.5em',
+                      outline: '1px solid blue !important',
+                      userSelect: 'none',
+                      whiteSpace: 'nowrap',
+                      minWidth: '2.5em',
+                      display: 'inline-block',
+                    }}
+                  >
+                    {showBottomRightFactor && (
+                      <span className={step2NumeratorAnimationDone ? 'fade-out-factor' : ''}>
+                        × {factor2}
+                      </span>
+                    )}
+                  </span>
                 </span>
               </div>
             </div>

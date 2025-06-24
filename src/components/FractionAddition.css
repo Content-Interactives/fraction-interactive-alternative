@@ -611,13 +611,16 @@ input[type="number"] {
 
 .fade-in-factor {
   opacity: 0;
-  animation: fadeInFactor 1.2s forwards;
+  transition: opacity 0.5s;
 }
 
-@keyframes fadeInFactor {
-  to {
-    opacity: 1;
-  }
+.fade-in-factor.visible {
+  opacity: 1;
+}
+
+.fade-out-factor {
+  opacity: 0;
+  transition: opacity 0.5s;
 }
 
 .fade-in-continue {

@@ -70,6 +70,8 @@ const FractionAddition = () => {
   const [showLeftNumeratorFill, setShowLeftNumeratorFill] = useState(false);
   const [showRightNumeratorFill, setShowRightNumeratorFill] = useState(false);
   const [factorsVisible, setFactorsVisible] = useState(true);
+  const [showSumInStep3, setShowSumInStep3] = useState(false);
+  const resetButtonRef = useRef(null);
 
   useEffect(() => {
     // Trigger step animation when currentStep changes
@@ -443,6 +445,9 @@ const FractionAddition = () => {
     setShowLeftNumeratorFill(false);
     setShowRightNumeratorFill(false);
     setIsAnimatingDenominator(false);
+    if (resetButtonRef.current) {
+      resetButtonRef.current.blur();
+    }
   };
 
   const startSteps = () => {
@@ -734,39 +739,80 @@ const FractionAddition = () => {
           </div>
         );
       case 2:
+        // Step 3: Add the numerators
+        const sumNumerator = result.steps.sumNumerator;
+        const sumDenominator = result.steps.commonDenominator;
+        const whole = Math.floor(sumNumerator / sumDenominator);
+        const remainder = sumNumerator % sumDenominator;
         return (
           <div className="step-content">
             <h3>Step 3: Add the numerators</h3>
-            <div style={{ minHeight: 60 }}>
-              {!showSumFraction ? (
-                <div className={`sum-fractions-fade${isFadingOut ? ' fade-out' : ' fade-in'}`} style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <div style={{ minHeight: 200, position: 'relative', width: '100%' }}>
+              {/* Group 1: Two fractions and pies, fade out */}
+              <div className={showSumFraction ? 'fade-out-fraction' : 'fade-in-fraction'} style={{
+                pointerEvents: showSumFraction ? 'none' : 'auto',
+                position: 'absolute',
+                left: 0,
+                right: 0,
+                top: 0,
+                bottom: 0,
+                margin: 'auto',
+                width: '100%',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+                <div className="sum-fractions-fade fade-in" style={{ display: 'flex', alignItems: 'center', gap: '16px', justifyContent: 'center', marginBottom: 16 }}>
                   <Fraction numerator={result.steps.adjustedNumerator1} denominator={result.steps.commonDenominator} size="1.5em" color="black" lineColor="black" />
                   <span className="plus-centered">+</span>
                   <Fraction numerator={result.steps.adjustedNumerator2} denominator={result.steps.commonDenominator} size="1.5em" color="black" lineColor="black" />
                 </div>
-              ) : (
-                <div className="sum-fraction sum-fractions-fade fade-in" style={{}}>
-                  <Fraction numerator={result.steps.sumNumerator} denominator={result.steps.commonDenominator} size="1.5em" color="black" lineColor="black" />
-                </div>
-              )}
-            </div>
-            <div className={`pie-charts-container${pieMoveDown ? ' pie-move-down' : ''}`} style={{ justifyContent: 'center', marginTop: '-25px', ...pieStepStyle }}>
-              {!showSumFraction ? (
-                <div className={`pie-charts-flex sum-fractions-fade${isFadingOut ? ' fade-out' : ' fade-in'}`}>
-                  <div className="pie-chart">
-                    {renderPieChart(result.steps.adjustedNumerator1, result.steps.commonDenominator)}
-                  </div>
-                  <div className="pie-chart">
-                    {renderPieChart(result.steps.adjustedNumerator2, result.steps.commonDenominator)}
+                <div className={`pie-charts-container${pieMoveDown ? ' pie-move-down' : ''}`} style={{ justifyContent: 'center', marginTop: '12px', display: 'flex', gap: '12px' }}>
+                  <div className="pie-charts-flex sum-fractions-fade fade-in" style={{ gap: '16px' }}>
+                    <div className="pie-chart">
+                      {renderPieChart(result.steps.adjustedNumerator1, result.steps.commonDenominator)}
+                    </div>
+                    <div className="pie-chart">
+                      {renderPieChart(result.steps.adjustedNumerator2, result.steps.commonDenominator)}
+                    </div>
                   </div>
                 </div>
-              ) : (
-                <div className="pie-charts-flex sum-fractions-fade fade-in">
-                  <div className="pie-chart">
-                    {renderPieChart(result.steps.sumNumerator, result.steps.commonDenominator)}
+              </div>
+              {/* Group 2: Sum and its pies, fade in */}
+              <div className={showSumFraction ? 'fade-in-fraction' : 'fade-out-fraction'} style={{
+                pointerEvents: showSumFraction ? 'auto' : 'none',
+                position: 'absolute',
+                left: 0,
+                right: 0,
+                top: 0,
+                bottom: 0,
+                margin: 'auto',
+                width: '100%',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+                <div className="sum-fraction sum-fractions-fade fade-in" style={{ textAlign: 'center', marginBottom: 16 }}>
+                  <Fraction numerator={sumNumerator} denominator={sumDenominator} size="1.5em" color="black" lineColor="black" />
+                </div>
+                <div className={`pie-charts-container${pieMoveDown ? ' pie-move-down' : ''}`} style={{ justifyContent: 'center', marginTop: '24px', display: 'flex', gap: '12px' }}>
+                  <div className="pie-charts-flex">
+                    {whole > 0 &&
+                      Array.from({ length: whole }).map((_, i) => (
+                        <div className="pie-chart" key={`whole-pie-${i}`}>
+                          {renderPieChart(sumDenominator, sumDenominator)}
+                        </div>
+                      ))}
+                    {remainder > 0 && (
+                      <div className="pie-chart" key="remainder-pie">
+                        {renderPieChart(remainder, sumDenominator)}
+                      </div>
+                    )}
                   </div>
                 </div>
-              )}
+              </div>
             </div>
           </div>
         );
@@ -909,7 +955,7 @@ const FractionAddition = () => {
       {/* Header row with title and reset button */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px 0 20px' }}>
         <h2 style={{ color: '#5750E3', fontSize: '1.1em', fontWeight: 700, margin: 0, letterSpacing: 0.2 }}>Fraction Addition</h2>
-        <button className="reset-button" onClick={resetAll} style={{ margin: 0, padding: '4px 16px', height: 32, fontSize: '0.95em' }}>Reset</button>
+        <button className="custom-reset-button" onClick={resetAll} ref={resetButtonRef}>Reset</button>
       </div>
       {/* Inner box for interactive content */}
       <div style={{

@@ -186,7 +186,7 @@
 }
 
 .adjusted-fractions, .sum-fraction {
-  background: #EEEDFC;
+  background: #E8EDF5;
   padding: 15px 25px;
   border-radius: 8px;
   font-size: 1.2em;
@@ -631,4 +631,38 @@ input[type="number"] {
 @keyframes fadeInContinue {
   from { opacity: 0; }
   to { opacity: 1; }
+}
+
+.custom-reset-button {
+  background: #fff;
+  color: #6c7280;
+  border: 2px solid #bfc3cb;
+  border-radius: 8px;
+  font-size: 1.1em;
+  font-family: inherit;
+  padding: 0.15em 0.9em;
+  box-shadow: none;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s, color 0.2s, transform 0.1s;
+  font-weight: 400;
+  height: 32px;
+  line-height: 1.2;
+}
+.custom-reset-button:hover, .custom-reset-button:focus {
+  border-color: #868e96;
+  background: #f5f6fa;
+  /* color: #5750E3; */
+  transform: scale(1.04);
+}
+
+.fade-in-fraction {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.6s, transform 0.6s;
+}
+.fade-out-fraction {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.6s, transform 0.6s;
 } 

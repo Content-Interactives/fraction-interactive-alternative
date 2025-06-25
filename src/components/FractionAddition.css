@@ -665,4 +665,13 @@ input[type="number"] {
   opacity: 0;
   transform: translateY(24px);
   transition: opacity 0.6s, transform 0.6s;
+}
+
+.factor-fraction-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 4.5em; /* Adjust as needed for spacing */
+  gap: 0.1em;
 } 

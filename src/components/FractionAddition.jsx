@@ -614,8 +614,16 @@ const FractionAddition = () => {
             <div className="adjusted-fractions fraction-sum-row" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '16px', color: 'black' }}>
               {/* Left fraction with factors on the left */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', justifyContent: 'space-between', lineHeight: '1.2', minHeight: '2.5em' }}>
-                  {/* Top left factor */}
+                <span style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'flex-end',
+                  justifyContent: 'space-between',
+                  minHeight: '2.5em',
+                  minWidth: '2.5em',
+                  lineHeight: '1.2',
+                }}>
+                  {/* Top left factor (always rendered, may be hidden) */}
                   <span
                     className={`fade-in-factor${showTopLeftFactor && factorsVisible ? ' visible' : ''}`}
                     style={{
@@ -626,15 +634,12 @@ const FractionAddition = () => {
                       whiteSpace: 'nowrap',
                       minWidth: '2.5em',
                       display: 'inline-block',
+                      visibility: showTopLeftFactor && factorsVisible ? 'visible' : 'hidden',
                     }}
                   >
-                    {showTopLeftFactor && (
-                      <span className={step2NumeratorAnimationDone ? 'fade-out-factor' : ''}>
-                        {factor1} ×
-                      </span>
-                    )}
+                    {factor1} ×
                   </span>
-                  {/* Bottom left factor */}
+                  {/* Bottom left factor (always rendered, may be hidden) */}
                   <span
                     className={`fade-in-factor${showBottomLeftFactor && factorsVisible ? ' visible' : ''}`}
                     style={{
@@ -645,13 +650,10 @@ const FractionAddition = () => {
                       whiteSpace: 'nowrap',
                       minWidth: '2.5em',
                       display: 'inline-block',
+                      visibility: showBottomLeftFactor && factorsVisible ? 'visible' : 'hidden',
                     }}
                   >
-                    {showBottomLeftFactor && (
-                      <span className={step2NumeratorAnimationDone ? 'fade-out-factor' : ''}>
-                        {factor1} ×
-                      </span>
-                    )}
+                    {factor1} ×
                   </span>
                 </span>
                 <Fraction numerator={displayNumeratorEq1} denominator={animatedDenominator1 || f1.denominator} size="1.5em" color="black" lineColor="black" />
@@ -660,8 +662,16 @@ const FractionAddition = () => {
               {/* Right fraction and factors in a row, factors aligned with numerator and denominator, mirroring the left */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Fraction numerator={step2Phase === 6 && showRightNumeratorFill && step2ShadeNumerator2Float >= parseInt(fractions.fraction2.numerator) ? Math.floor(step2ShadeNumerator2Float) : displayNumeratorEq2} denominator={animatedDenominator2 || f2.denominator} size="1.5em" color="black" lineColor="black" />
-                <span style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'space-between', lineHeight: '1.2', minHeight: '2.5em' }}>
-                  {/* Top right factor */}
+                <span style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'flex-start',
+                  justifyContent: 'space-between',
+                  minHeight: '2.5em',
+                  minWidth: '2.5em',
+                  lineHeight: '1.2',
+                }}>
+                  {/* Top right factor (always rendered, may be hidden) */}
                   <span
                     className={`fade-in-factor${showTopRightFactor && factorsVisible ? ' visible' : ''}`}
                     style={{
@@ -673,15 +683,12 @@ const FractionAddition = () => {
                       whiteSpace: 'nowrap',
                       minWidth: '2.5em',
                       display: 'inline-block',
+                      visibility: showTopRightFactor && factorsVisible ? 'visible' : 'hidden',
                     }}
                   >
-                    {showTopRightFactor && (
-                      <span className={step2NumeratorAnimationDone ? 'fade-out-factor' : ''}>
-                        × {factor2}
-                      </span>
-                    )}
+                    × {factor2}
                   </span>
-                  {/* Bottom right factor */}
+                  {/* Bottom right factor (always rendered, may be hidden) */}
                   <span
                     className={`fade-in-factor${showBottomRightFactor && factorsVisible ? ' visible' : ''}`}
                     style={{
@@ -693,13 +700,10 @@ const FractionAddition = () => {
                       whiteSpace: 'nowrap',
                       minWidth: '2.5em',
                       display: 'inline-block',
+                      visibility: showBottomRightFactor && factorsVisible ? 'visible' : 'hidden',
                     }}
                   >
-                    {showBottomRightFactor && (
-                      <span className={step2NumeratorAnimationDone ? 'fade-out-factor' : ''}>
-                        × {factor2}
-                      </span>
-                    )}
+                    × {factor2}
                   </span>
                 </span>
               </div>

@@ -72,6 +72,8 @@ const FractionAddition = () => {
   const [factorsVisible, setFactorsVisible] = useState(true);
   const [showSumInStep3, setShowSumInStep3] = useState(false);
   const resetButtonRef = useRef(null);
+  const [stepResetting, setStepResetting] = useState(false);
+  const [stepKey, setStepKey] = useState(0);
 
   useEffect(() => {
     // Trigger step animation when currentStep changes
@@ -480,6 +482,12 @@ const FractionAddition = () => {
         sumNumerator: sumNum,
         simplifiedNumerator: sumNum / gcd,
         simplifiedDenominator: commonDen / gcd
+      },
+      fractions: {
+        fraction1OriginalNum: num1,
+        fraction1OriginalDen: den1,
+        fraction2OriginalNum: num2,
+        fraction2OriginalDen: den2
       }
     });
     setShowSteps(true);
@@ -579,6 +587,17 @@ const FractionAddition = () => {
           </div>
         );
       case 1:
+        console.log('[Step2] render:', {
+          step2Phase,
+          animatedDenominator1,
+          animatedDenominator2,
+          step2ShadeNumerator1Float,
+          step2ShadeNumerator2Float,
+          step2NumeratorAnimationDone,
+          showRightNumeratorFill,
+          showLeftNumeratorFill,
+          stepResetting
+        });
         // No shading during denominator animation; animate numerator shading after
         const showAdjustedNumerator1 = animatedDenominator1 === result.steps.commonDenominator;
         const showAdjustedNumerator2 = animatedDenominator2 === result.steps.commonDenominator;
@@ -743,6 +762,13 @@ const FractionAddition = () => {
           </div>
         );
       case 2:
+        console.log('[Step3] render:', {
+          showSumFraction,
+          isFadingOut,
+          step3AnimatedNumerator1,
+          step3AnimatedNumerator2,
+          stepResetting
+        });
         // Step 3: Add the numerators
         const sumNumerator = result.steps.sumNumerator;
         const sumDenominator = result.steps.commonDenominator;
@@ -942,6 +968,60 @@ const FractionAddition = () => {
     }
   }, [currentStep]);
 
+  // Reset animation/phase state for a given step
+  const resetStepState = (step) => {
+    if (step === 1) {
+      setStep2Phase(0);
+      setShowBottomLeftFactor(false);
+      setShowBottomRightFactor(false);
+      setShowTopLeftFactor(false);
+      setShowTopRightFactor(false);
+      setShowLeftNumeratorFill(false);
+      setShowRightNumeratorFill(false);
+      setStep2ShadeNumerator1Float(0);
+      setStep2ShadeNumerator2Float(0);
+      setStep2NumeratorAnimationDone(false);
+      setAnimatedDenominator1(result && result.fractions ? result.fractions.fraction1OriginalDen : fractions.fraction1.denominator);
+      setAnimatedDenominator2(result && result.fractions ? result.fractions.fraction2OriginalDen : fractions.fraction2.denominator);
+      setAnimatedNumerator1(result && result.fractions ? result.fractions.fraction1OriginalNum : fractions.fraction1.numerator);
+      setAnimatedNumerator2(result && result.fractions ? result.fractions.fraction2OriginalNum : fractions.fraction2.numerator);
+    }
+    if (step === 2) {
+      setShowSumFraction(false);
+      setIsFadingOut(false);
+      setStep3AnimatedNumerator1(fractions.fraction1.numerator);
+      setStep3AnimatedNumerator2(fractions.fraction2.numerator);
+    }
+  };
+
+  // Add logs to step 2 and 3 effects
+  useEffect(() => {
+    if (currentStep === 1) {
+      console.log('[Step2] effect: step2Phase', step2Phase, {
+        animatedDenominator1,
+        animatedDenominator2,
+        step2ShadeNumerator1Float,
+        step2ShadeNumerator2Float,
+        step2NumeratorAnimationDone,
+        showRightNumeratorFill,
+        showLeftNumeratorFill,
+        stepResetting
+      });
+    }
+  }, [currentStep, step2Phase, animatedDenominator1, animatedDenominator2, step2ShadeNumerator1Float, step2ShadeNumerator2Float, step2NumeratorAnimationDone, showRightNumeratorFill, showLeftNumeratorFill, stepResetting]);
+
+  useEffect(() => {
+    if (currentStep === 2) {
+      console.log('[Step3] effect', {
+        showSumFraction,
+        isFadingOut,
+        step3AnimatedNumerator1,
+        step3AnimatedNumerator2,
+        stepResetting
+      });
+    }
+  }, [currentStep, showSumFraction, isFadingOut, step3AnimatedNumerator1, step3AnimatedNumerator2, stepResetting]);
+
   return (
     <div className="fraction-addition-root" style={{
       maxWidth: 500,
@@ -1057,8 +1137,8 @@ const FractionAddition = () => {
           ) : (
             <div className="steps-container">
               {!isComplete && (
-                <div className={`step ${stepAnimation}`} style={{ background: 'none', boxShadow: 'none', padding: 0 }}>
-                  {renderStepContent()}
+                <div className={`step ${stepAnimation}`} style={{ background: 'none', boxShadow: 'none', padding: 0 }} key={stepKey}>
+                  {stepResetting ? null : renderStepContent()}
                 </div>
               )}
               {isComplete && (
@@ -1075,6 +1155,50 @@ const FractionAddition = () => {
           )}
         </div>
         <div className="button-bar">
+          {showSteps && currentStep > 0 && !isComplete && (
+            <div style={{ backgroundColor: '#E8EDF5', borderRadius: '20px', padding: '6px', display: 'inline-block' }}>
+              <button
+                className={`glow-button back-orbit-glow fade-in-out${!(
+                  fractions.fraction1.numerator &&
+                  fractions.fraction1.denominator &&
+                  fractions.fraction2.numerator &&
+                  fractions.fraction2.denominator &&
+                  parseInt(fractions.fraction1.denominator) > 1 &&
+                  parseInt(fractions.fraction2.denominator) > 1 &&
+                  isProperFraction(fractions.fraction1.numerator, fractions.fraction1.denominator) &&
+                  isProperFraction(fractions.fraction2.numerator, fractions.fraction2.denominator) &&
+                  (!showSteps || (showSteps && !isComplete)) &&
+                  !isAnimatingDenominator &&
+                  !hideContinue &&
+                  (currentStep !== 1 || step2NumeratorAnimationDone) &&
+                  (!showSteps || currentStep !== 0 || showLCMText) &&
+                  (currentStep !== 2 || showSumFraction)
+                ) ? ' hide' : ''}`}
+                onClick={() => {
+                  setStepResetting(true);
+                  resetStepState(currentStep);
+                  setTimeout(() => {
+                    setStepKey(prev => prev + 1);
+                    setCurrentStep(currentStep - 1);
+                    setStepResetting(false);
+                  }, 50);
+                }}
+                style={{
+                  minWidth: 120,
+                  fontSize: '1.1em',
+                  padding: '12px 24px',
+                  fontWeight: 400,
+                  borderRadius: '16px',
+                  cursor: 'pointer',
+                  border: 'none',
+                  boxShadow: 'none',
+                  height: '55px',
+                }}
+              >
+                Back
+              </button>
+            </div>
+          )}
           <div style={{ flex: 1 }} />
           <button
             className={`glow-button simple-glow button-bar-right fade-in-out${!(

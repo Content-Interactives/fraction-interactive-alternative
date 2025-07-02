@@ -674,4 +674,8 @@ input[type="number"] {
   justify-content: center;
   min-height: 4.5em; /* Adjust as needed for spacing */
   gap: 0.1em;
+}
+
+.back-orbit-glow.glow-button::before {
+  background: #E8EDF5 !important;
 } 
